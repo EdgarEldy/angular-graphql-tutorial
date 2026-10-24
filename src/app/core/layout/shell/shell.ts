@@ -38,6 +38,13 @@ export class Shell {
     { label: 'Orders', icon: 'shopping_cart', route: '/orders' },
   ];
 
+  /**
+   * Toggles the sidenav between open and closed states.
+   *
+   * Uses signal.update() to derive the next state from the current value without reading
+   * the signal outside the reactive context -- this is the idiomatic Signals pattern for
+   * a boolean toggle (equivalent to setState(prev => !prev) in React).
+   */
   toggleSidenav(): void {
     this.sidenavOpen.update((open) => !open);
   }

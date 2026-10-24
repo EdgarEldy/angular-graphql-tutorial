@@ -8,6 +8,17 @@ const classificationMap: Readonly<Record<string, ErrorKind>> = {
   UNAUTHORIZED: 'UNAUTHENTICATED',
 } as const;
 
+/**
+ * Converts an ApolloError (GraphQL or network) into a typed AppError understood by the UI.
+ *
+ * Apollo can report two kinds of problems: GraphQL errors returned by the server inside the
+ * `errors` array (classified via `extensions.classification`) and transport-level network
+ * errors. This function checks network errors first because they short-circuit the GraphQL
+ * error inspection -- a 401 response never carries a GraphQL body.
+ *
+ * @param error - The ApolloError thrown or forwarded by the Apollo link chain.
+ * @returns A normalised AppError with a stable `kind` enum value the rest of the app reacts to.
+ */
 export function mapApolloError(error: ApolloError): AppError {
   if (error.networkError) {
     const status = (error.networkError as { status?: number }).status;

@@ -10,6 +10,25 @@ import { environment } from '../../../environments/environment';
 import { Auth } from '../auth/auth';
 import { mapApolloError } from './error-mapper';
 
+/**
+ * Factory function that builds the ApolloClient configuration for the application.
+ *
+ * Apollo needs two transport links: HttpLink handles queries and mutations through the
+ * Angular HttpClient pipeline (which applies the auth interceptor automatically), while
+ * GraphQLWsLink handles subscriptions over a persistent WebSocket connection where the
+ * JWT must be sent explicitly via connectionParams because HTTP interceptors do not apply
+ * to WebSocket frames.
+ *
+ * An error link sits between the split router and HttpLink so that UNAUTHENTICATED errors
+ * from any query or mutation redirect the user to /login before the response reaches the
+ * component. The split() utility inspects each operation's OperationDefinition kind at
+ * runtime to route it to the correct transport.
+ *
+ * This function is called inside Angular's injection context (provideApollo accepts a
+ * factory function), so inject() works for HttpLink, Auth, and Router.
+ *
+ * @returns A fully configured ApolloClientOptions object consumed by provideApollo().
+ */
 export function apolloOptionsFactory(): ApolloClientOptions<unknown> {
   const httpLink = inject(HttpLink);
   const auth = inject(Auth);
