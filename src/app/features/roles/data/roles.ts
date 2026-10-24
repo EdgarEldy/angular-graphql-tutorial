@@ -1,6 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { FetchResult } from '@apollo/client/core';
 import { Observable } from 'rxjs';
 import type { QueryRef } from 'apollo-angular';
 import {
@@ -79,7 +78,7 @@ export class Roles {
    */
   createRole(
     input: CreateRoleMutationVariables['input'],
-  ): Observable<FetchResult<CreateRoleMutation>> {
+  ): Observable<Apollo.MutateResult<CreateRoleMutation>> {
     return this.apollo.mutate<CreateRoleMutation, CreateRoleMutationVariables>({
       mutation: CreateRoleDocument,
       variables: { input },
@@ -100,7 +99,7 @@ export class Roles {
   updateRole(
     id: UpdateRoleMutationVariables['id'],
     input: UpdateRoleMutationVariables['input'],
-  ): Observable<FetchResult<UpdateRoleMutation>> {
+  ): Observable<Apollo.MutateResult<UpdateRoleMutation>> {
     return this.apollo.mutate<UpdateRoleMutation, UpdateRoleMutationVariables>({
       mutation: UpdateRoleDocument,
       variables: { id, input },
@@ -116,7 +115,7 @@ export class Roles {
    */
   deleteRole(
     id: DeleteRoleMutationVariables['id'],
-  ): Observable<FetchResult<DeleteRoleMutation>> {
+  ): Observable<Apollo.MutateResult<DeleteRoleMutation>> {
     return this.apollo.mutate<DeleteRoleMutation, DeleteRoleMutationVariables>({
       mutation: DeleteRoleDocument,
       variables: { id },
@@ -132,7 +131,7 @@ export class Roles {
    */
   createPermission(
     input: CreatePermissionMutationVariables['input'],
-  ): Observable<FetchResult<CreatePermissionMutation>> {
+  ): Observable<Apollo.MutateResult<CreatePermissionMutation>> {
     return this.apollo.mutate<CreatePermissionMutation, CreatePermissionMutationVariables>({
       mutation: CreatePermissionDocument,
       variables: { input },
@@ -148,7 +147,7 @@ export class Roles {
    */
   deletePermission(
     id: DeletePermissionMutationVariables['id'],
-  ): Observable<FetchResult<DeletePermissionMutation>> {
+  ): Observable<Apollo.MutateResult<DeletePermissionMutation>> {
     return this.apollo.mutate<DeletePermissionMutation, DeletePermissionMutationVariables>({
       mutation: DeletePermissionDocument,
       variables: { id },
@@ -169,7 +168,7 @@ export class Roles {
   assignPermissionToRole(
     roleId: AssignPermissionToRoleMutationVariables['roleId'],
     permissionId: AssignPermissionToRoleMutationVariables['permissionId'],
-  ): Observable<FetchResult<AssignPermissionToRoleMutation>> {
+  ): Observable<Apollo.MutateResult<AssignPermissionToRoleMutation>> {
     return this.apollo.mutate<
       AssignPermissionToRoleMutation,
       AssignPermissionToRoleMutationVariables
@@ -192,7 +191,7 @@ export class Roles {
   removePermissionFromRole(
     roleId: RemovePermissionFromRoleMutationVariables['roleId'],
     permissionId: RemovePermissionFromRoleMutationVariables['permissionId'],
-  ): Observable<FetchResult<RemovePermissionFromRoleMutation>> {
+  ): Observable<Apollo.MutateResult<RemovePermissionFromRoleMutation>> {
     return this.apollo.mutate<
       RemovePermissionFromRoleMutation,
       RemovePermissionFromRoleMutationVariables
