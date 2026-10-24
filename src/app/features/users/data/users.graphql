@@ -1,0 +1,64 @@
+fragment UserFields on User {
+  id
+  firstName
+  lastName
+  email
+  enabled
+  accountLocked
+  roles {
+    id
+    roleName
+  }
+}
+
+query GetUsers($page: Int, $size: Int) {
+  users(page: $page, size: $size) {
+    content {
+      ...UserFields
+    }
+    totalElements
+    totalPages
+    page
+    size
+  }
+}
+
+mutation CreateUser($input: CreateUserInput!) {
+  createUser(input: $input) {
+    ...UserFields
+  }
+}
+
+mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
+  updateUser(id: $id, input: $input) {
+    ...UserFields
+  }
+}
+
+mutation LockUser($id: ID!) {
+  lockUser(id: $id) {
+    ...UserFields
+  }
+}
+
+mutation UnlockUser($id: ID!) {
+  unlockUser(id: $id) {
+    ...UserFields
+  }
+}
+
+mutation DeleteUser($id: ID!) {
+  deleteUser(id: $id)
+}
+
+mutation AssignRoleToUser($userId: ID!, $roleId: ID!) {
+  assignRoleToUser(userId: $userId, roleId: $roleId) {
+    ...UserFields
+  }
+}
+
+mutation RemoveRoleFromUser($userId: ID!, $roleId: ID!) {
+  removeRoleFromUser(userId: $userId, roleId: $roleId) {
+    ...UserFields
+  }
+}

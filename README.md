@@ -268,22 +268,22 @@ Tests must not require the real backend to be running. Test files and test names
 
 ### Tasks
 
-- Create the project with Angular CLI **21** in the current repository root (standalone, SCSS, routing, no SSR, existing git repository kept): `npx @angular/cli@21 new angular-graphql-tutorial --directory . --style=scss --ssr=false --skip-git`. `ng new` generates its own `README.md` and would replace this one: keep a copy of this file and restore it right after the generation. Confirm with `ng version` that the project is on Angular 21, and keep strict TypeScript and strict templates enabled.
-- Install: `apollo-angular`, `@apollo/client`, `graphql`, `graphql-ws`, `@angular/material`, `@angular/cdk`; dev: `@graphql-codegen/cli`, `@graphql-codegen/typescript`, `@graphql-codegen/typescript-operations`, `@graphql-codegen/typed-document-node`, `@graphql-codegen/near-operation-file-preset` (only if used), `angular-eslint`, `prettier`
-- Environments: run `ng generate environments` (creates `environment.ts` and `environment.development.ts` and registers the file replacement in `angular.json`), then add `apiUrl` (`/graphql` through the proxy in dev) and `wsUrl`
-- `proxy.conf.json`: proxy `/graphql` to `http://localhost:8080`, with `"ws": true` so the WebSocket upgrade is forwarded; wire it in `angular.json` for `ng serve`. This also avoids any CORS dependency on the backend in development.
-- `apollo.config.ts`: `provideApollo` with an `HttpLink`, an error link (delegates to `error-mapper`), a `GraphQLWsLink`, and `split()` so subscriptions go over WebSocket and everything else over HTTP; `InMemoryCache`
-- `authInterceptor` (`ng generate interceptor core/auth/auth`) reading the token from `AuthService`, registered in `app.config.ts`, with unit tests
-- `codegen.ts` reading `schema/schema.graphqls` and every `src/**/*.graphql`, generating types and typed document nodes into `src/app/core/graphql/generated/`. npm scripts: `codegen`, `codegen:watch`, `schema:update` (downloads the backend schema into `schema/schema.graphqls` from the backend repository's `src/main/resources/graphql/schema.graphqls`)
-- Commit `schema/schema.graphqls`. Decide explicitly whether generated files are committed (recommended: **committed**, so CI and fresh clones build without an extra step) and document the choice
-- `error-mapper.ts` and the error link, with unit tests
-- App shell: Material toolbar + sidenav + `router-outlet`, navigation entries for each domain (entries for not-yet-implemented features are added by their own branch), not-found page, global loading/error primitives in `shared/ui`
-- `NotificationService` (snackbar) used by all features for success and error messages
-- Shared page-envelope adapter for Material paginators
-- ESLint + Prettier configuration; `npm run lint` must pass
-- `Dockerfile` (multi-stage: Node build, then nginx serving `dist` and proxying `/graphql` to the backend, WebSocket upgrade headers included), `nginx.conf`, and a `docker-compose.yml` that runs the frontend and expects the backend reachable (either as a service built from the backend repository or via `host.docker.internal`; document the chosen option)
-- `.github/workflows/ci.yml`: install, lint, test, build on every push and pull request
-- Replace this README's "How to follow" commands if the real commands differ
+- [x] Create the project with Angular CLI **21** in the current repository root (standalone, SCSS, routing, no SSR, existing git repository kept): `npx @angular/cli@21 new angular-graphql-tutorial --directory . --style=scss --ssr=false --skip-git`. `ng new` generates its own `README.md` and would replace this one: keep a copy of this file and restore it right after the generation. Confirm with `ng version` that the project is on Angular 21, and keep strict TypeScript and strict templates enabled.
+- [x] Install: `apollo-angular`, `@apollo/client`, `graphql`, `graphql-ws`, `@angular/material`, `@angular/cdk`; dev: `@graphql-codegen/cli`, `@graphql-codegen/typescript`, `@graphql-codegen/typescript-operations`, `@graphql-codegen/typed-document-node`, `@graphql-codegen/near-operation-file-preset` (only if used), `angular-eslint`, `prettier`
+- [x] Environments: run `ng generate environments` (creates `environment.ts` and `environment.development.ts` and registers the file replacement in `angular.json`), then add `apiUrl` (`/graphql` through the proxy in dev) and `wsUrl`
+- [x] `proxy.conf.json`: proxy `/graphql` to `http://localhost:8080`, with `"ws": true` so the WebSocket upgrade is forwarded; wire it in `angular.json` for `ng serve`. This also avoids any CORS dependency on the backend in development.
+- [x] `apollo.config.ts`: `provideApollo` with an `HttpLink`, an error link (delegates to `error-mapper`), a `GraphQLWsLink`, and `split()` so subscriptions go over WebSocket and everything else over HTTP; `InMemoryCache`
+- [x] `authInterceptor` (`ng generate interceptor core/auth/auth`) reading the token from `AuthService`, registered in `app.config.ts`, with unit tests
+- [x] `codegen.ts` reading `schema/schema.graphqls` and every `src/**/*.graphql`, generating types and typed document nodes into `src/app/core/graphql/generated/`. npm scripts: `codegen`, `codegen:watch`, `schema:update` (downloads the backend schema into `schema/schema.graphqls` from the backend repository's `src/main/resources/graphql/schema.graphqls`)
+- [x] Commit `schema/schema.graphqls`. Decide explicitly whether generated files are committed (recommended: **committed**, so CI and fresh clones build without an extra step) and document the choice
+- [x] `error-mapper.ts` and the error link, with unit tests
+- [x] App shell: Material toolbar + sidenav + `router-outlet`, navigation entries for each domain (entries for not-yet-implemented features are added by their own branch), not-found page, global loading/error primitives in `shared/ui`
+- [x] `NotificationService` (snackbar) used by all features for success and error messages
+- [x] Shared page-envelope adapter for Material paginators
+- [x] ESLint + Prettier configuration; `npm run lint` must pass
+- [x] `Dockerfile` (multi-stage: Node build, then nginx serving `dist` and proxying `/graphql` to the backend, WebSocket upgrade headers included), `nginx.conf`, and a `docker-compose.yml` that runs the frontend and expects the backend reachable (either as a service built from the backend repository or via `host.docker.internal`; document the chosen option)
+- [x] `.github/workflows/ci.yml`: install, lint, test, build on every push and pull request
+- [x] Replace this README's "How to follow" commands if the real commands differ
 
 ## feature/auth
 
@@ -311,16 +311,16 @@ Depends on `feature/core-architecture`. Authentication first, then administratio
 
 ### Tasks
 
-- `AuthService` (session signal, token storage, `login`, `logout`, session restore with `me`, `isAdmin`), `authGuard`, `adminGuard`, with tests
-- The `authInterceptor` already reads the token for HTTP: make the WebSocket link reconnect on login/logout
-- The five public screens above, with typed reactive forms and field-level validation matching the backend inputs (all fields required; valid email format; sensible password minimum length shown as UX guidance only, since the backend is the authority)
-- On a `BAD_REQUEST` returned by `register`, `login` or a form mutation, display the backend message
-- Return-URL handling after a forced redirect to `/login`
-- Admin screens above, using the `UserFields`, `RoleFields` fragments; `User.roles` and `Role.permissions` requested in the list queries (one round trip each)
-- After assignment mutations, update the cache from the returned `User`/`Role` so chips update immediately
-- A user must not be able to delete or lock **their own** account from the UI (disable those actions on the current user's row)
-- Navigation: show the Administration menu only to admins
-- Tests: error mapping into the login form, session restore, guards, role assignment cache update, a non-admin being redirected from an admin route
+- [x] `AuthService` (session signal, token storage, `login`, `logout`, session restore with `me`, `isAdmin`), `authGuard`, `adminGuard`, with tests
+- [x] The `authInterceptor` already reads the token for HTTP: make the WebSocket link reconnect on login/logout
+- [x] The five public screens above, with typed reactive forms and field-level validation matching the backend inputs (all fields required; valid email format; sensible password minimum length shown as UX guidance only, since the backend is the authority)
+- [x] On a `BAD_REQUEST` returned by `register`, `login` or a form mutation, display the backend message
+- [x] Return-URL handling after a forced redirect to `/login`
+- [x] Admin screens above, using the `UserFields`, `RoleFields` fragments; `User.roles` and `Role.permissions` requested in the list queries (one round trip each)
+- [x] After assignment mutations, update the cache from the returned `User`/`Role` so chips update immediately
+- [x] A user must not be able to delete or lock **their own** account from the UI (disable those actions on the current user's row)
+- [x] Navigation: show the Administration menu only to admins
+- [x] Tests: error mapping into the login form, session restore, guards, role assignment cache update, a non-admin being redirected from an admin route
 
 ## feature/categories
 

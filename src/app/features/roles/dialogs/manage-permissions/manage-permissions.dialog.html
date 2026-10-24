@@ -1,0 +1,61 @@
+<h2 mat-dialog-title>Manage permissions for {{ role().roleName }}</h2>
+
+<mat-dialog-content>
+  <section class="section">
+    <h3 class="section-title">Assigned permissions</h3>
+
+    @if (role().permissions.length === 0) {
+      <p class="empty-hint">No permissions assigned yet.</p>
+    } @else {
+      <mat-chip-set>
+        @for (perm of role().permissions; track perm.id) {
+          <mat-chip
+            [removable]="!mutating()"
+            (removed)="removePermission(perm)">
+            {{ perm.resource }}:{{ perm.action }}
+            <button matChipRemove [disabled]="mutating()">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+        }
+      </mat-chip-set>
+    }
+  </section>
+
+  <section class="section">
+    <h3 class="section-title">Add permission</h3>
+
+    @if (loadingPermissions()) {
+      <mat-spinner diameter="24" />
+    } @else if (availablePermissions().length === 0) {
+      <p class="empty-hint">All permissions are already assigned.</p>
+    } @else {
+      <div class="add-row">
+        <mat-form-field class="select-field">
+          <mat-label>Permission</mat-label>
+          <mat-select [formControl]="addPermissionControl">
+            @for (perm of availablePermissions(); track perm.id) {
+              <mat-option [value]="perm.id">{{ perm.resource }}:{{ perm.action }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <button
+          mat-flat-button
+          color="primary"
+          [disabled]="!addPermissionControl.value || mutating()"
+          (click)="addPermission()">
+          @if (mutating()) {
+            <mat-spinner diameter="20" />
+          } @else {
+            Add
+          }
+        </button>
+      </div>
+    }
+  </section>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Close</button>
+</mat-dialog-actions>
