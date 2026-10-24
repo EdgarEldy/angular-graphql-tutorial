@@ -5,6 +5,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -88,9 +89,9 @@ export class ManagePermissionsDialog {
   });
 
   constructor() {
-    // Fetch all permissions once on dialog open.
+    // Fetch all permissions on dialog open; takeUntilDestroyed() cleans up on close.
     // watchQuery keeps the list current if the user creates permissions elsewhere.
-    this.rolesService.watchPermissions().valueChanges.subscribe({
+    this.rolesService.watchPermissions().valueChanges.pipe(takeUntilDestroyed()).subscribe({
       next: (result) => {
         this.loadingPermissions.set(false);
         if (result.data?.permissions) {
