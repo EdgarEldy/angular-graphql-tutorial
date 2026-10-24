@@ -31,6 +31,8 @@
     "@angular/build": "^21.2.24",
     "@angular/cli": "^21.2.24",
     "@angular/compiler-cli": "^21.2.0",
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
     "@eslint/js": "^10.0.1",
     "@graphql-codegen/cli": "^7.4.6",
     "@graphql-codegen/typed-document-node": "^7.2.0",
