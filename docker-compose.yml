@@ -1,0 +1,18 @@
+services:
+  frontend:
+    build: .
+    ports:
+      - "4200:80"
+    extra_hosts:
+      - "backend:host-gateway"
+    restart: unless-stopped
+
+# The Spring backend is expected to run separately on localhost:8080 (or inside its own
+# docker-compose). nginx.conf proxies /graphql to http://backend:8080/graphql.
+# extra_hosts maps "backend" to the host machine (host-gateway) so the container can reach
+# the backend running on the host or in a separate Docker network.
+#
+# To run the full stack together, start the spring-graphql-tutorial compose first:
+#   cd ../spring-graphql-tutorial && docker-compose up -d
+# Then start this compose:
+#   docker-compose up --build
