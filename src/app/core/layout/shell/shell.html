@@ -2,7 +2,12 @@
   <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle navigation">
     <mat-icon>menu</mat-icon>
   </button>
-  <span>Angular GraphQL Tutorial</span>
+  <span class="toolbar-title">Angular GraphQL Tutorial</span>
+
+  <!-- Logout button lives in the shell, not the service, because navigation is UI concern -->
+  <button mat-icon-button matTooltip="Sign out" aria-label="Sign out" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
 </mat-toolbar>
 
 <mat-sidenav-container class="sidenav-container">
@@ -16,6 +21,21 @@
           <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
           <span matListItemTitle>{{ item.label }}</span>
         </a>
+      }
+
+      <!-- Admin section: visible only when the current user holds the ADMIN role -->
+      @if (isAdmin()) {
+        <mat-divider />
+        <h3 mat-subheader>Administration</h3>
+        @for (item of adminNavItems; track item.route) {
+          <a mat-list-item
+             [routerLink]="item.route"
+             routerLinkActive="active-link"
+             [routerLinkActiveOptions]="{ exact: true }">
+            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+            <span matListItemTitle>{{ item.label }}</span>
+          </a>
+        }
       }
     </mat-nav-list>
   </mat-sidenav>

@@ -1,0 +1,41 @@
+<h2 mat-dialog-title>Create permission</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" id="permissionForm" (ngSubmit)="submit()">
+    @if (errorMessage()) {
+      <p class="form-error">{{ errorMessage() }}</p>
+    }
+
+    <mat-form-field class="full-width">
+      <mat-label>Resource</mat-label>
+      <input matInput formControlName="resource" placeholder="e.g. USER" autocomplete="off" />
+      @if (resourceControl.hasError('required') && resourceControl.touched) {
+        <mat-error>Resource is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field class="full-width">
+      <mat-label>Action</mat-label>
+      <input matInput formControlName="action" placeholder="e.g. READ" autocomplete="off" />
+      @if (actionControl.hasError('required') && actionControl.touched) {
+        <mat-error>Action is required.</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    type="submit"
+    form="permissionForm"
+    [disabled]="form.invalid || loading()">
+    @if (loading()) {
+      <mat-spinner diameter="20" />
+    } @else {
+      Create
+    }
+  </button>
+</mat-dialog-actions>

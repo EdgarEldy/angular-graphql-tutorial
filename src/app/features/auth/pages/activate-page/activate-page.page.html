@@ -1,0 +1,30 @@
+<div class="auth-page">
+  <mat-card class="auth-card">
+    <mat-card-header>
+      <mat-card-title>Account Activation</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      @switch (state()) {
+        @case ('loading') {
+          <div class="activation-status">
+            <mat-spinner diameter="40" />
+            <p>Activating your account...</p>
+          </div>
+        }
+        @case ('success') {
+          <div class="activation-status success" role="status">
+            <p>Your account has been activated. You can now sign in.</p>
+            <a mat-flat-button color="primary" routerLink="/login">Go to login</a>
+          </div>
+        }
+        @case ('error') {
+          <div class="activation-status error" role="alert">
+            <p>{{ errorMessage() }}</p>
+            <a mat-button routerLink="/login">Back to login</a>
+          </div>
+        }
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

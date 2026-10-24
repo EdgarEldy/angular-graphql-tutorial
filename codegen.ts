@@ -11,16 +11,17 @@ const config: CodegenConfig = {
         'typed-document-node',
       ],
       config: {
-        strictScalars: true,
         scalars: {
           ID: 'string',
         },
-        avoidOptionals: true,
         nonOptionalTypename: false,
         dedupeFragments: true,
       },
     },
   },
+  // Suppresses the warning when no .graphql document files exist yet.
+  // Feature branches add operation files; this branch only scaffolds the config.
+  ignoreNoDocuments: true,
   hooks: {
     afterAllFileWrite: ['prettier --write'],
   },

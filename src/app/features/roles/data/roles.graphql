@@ -1,0 +1,69 @@
+fragment PermissionFields on Permission {
+  id
+  resource
+  action
+}
+
+fragment RoleFields on Role {
+  id
+  roleName
+  permissions {
+    ...PermissionFields
+  }
+}
+
+query GetRoles {
+  roles {
+    ...RoleFields
+  }
+}
+
+query GetRole($id: ID!) {
+  role(id: $id) {
+    ...RoleFields
+  }
+}
+
+query GetPermissions {
+  permissions {
+    ...PermissionFields
+  }
+}
+
+mutation CreateRole($input: RoleInput!) {
+  createRole(input: $input) {
+    ...RoleFields
+  }
+}
+
+mutation UpdateRole($id: ID!, $input: RoleInput!) {
+  updateRole(id: $id, input: $input) {
+    ...RoleFields
+  }
+}
+
+mutation DeleteRole($id: ID!) {
+  deleteRole(id: $id)
+}
+
+mutation CreatePermission($input: PermissionInput!) {
+  createPermission(input: $input) {
+    ...PermissionFields
+  }
+}
+
+mutation DeletePermission($id: ID!) {
+  deletePermission(id: $id)
+}
+
+mutation AssignPermissionToRole($roleId: ID!, $permissionId: ID!) {
+  assignPermissionToRole(roleId: $roleId, permissionId: $permissionId) {
+    ...RoleFields
+  }
+}
+
+mutation RemovePermissionFromRole($roleId: ID!, $permissionId: ID!) {
+  removePermissionFromRole(roleId: $roleId, permissionId: $permissionId) {
+    ...RoleFields
+  }
+}

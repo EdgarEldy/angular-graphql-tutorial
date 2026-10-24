@@ -1,0 +1,68 @@
+fragment AuthPayloadFields on AuthPayload {
+  token
+  user {
+    id
+    firstName
+    lastName
+    email
+    enabled
+    accountLocked
+    roles {
+      id
+      roleName
+      permissions {
+        id
+        resource
+        action
+      }
+    }
+  }
+}
+
+query Me {
+  me {
+    id
+    firstName
+    lastName
+    email
+    enabled
+    accountLocked
+    roles {
+      id
+      roleName
+      permissions {
+        id
+        resource
+        action
+      }
+    }
+  }
+}
+
+mutation Login($input: LoginInput!) {
+  login(input: $input) {
+    ...AuthPayloadFields
+  }
+}
+
+mutation Register($input: RegisterInput!) {
+  register(input: $input) {
+    ...AuthPayloadFields
+  }
+}
+
+mutation Logout {
+  logout
+}
+
+mutation ActivateAccount($token: String!) {
+  activateAccount(token: $token)
+}
+
+mutation RequestPasswordReset($email: String!) {
+  requestPasswordReset(email: $email)
+}
+
+mutation ResetPassword($token: String!, $newPassword: String!) {
+  resetPassword(token: $token, newPassword: $newPassword)
+}
