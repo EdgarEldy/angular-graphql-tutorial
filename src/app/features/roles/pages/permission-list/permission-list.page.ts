@@ -72,12 +72,14 @@ export class PermissionListPage implements OnInit {
     this.queryRef.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.loading.set(result.loading);
-        if (result.errors?.length) {
-          this.error.set(mapError(result.errors[0] as unknown as Error));
+        // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+        if (result.error) {
+          this.error.set(mapError(result.error as Error));
         } else {
           this.error.set(null);
           if (result.data?.permissions) {
-            this.permissions.set([...result.data.permissions]);
+            // DeepPartialObject: cast to PermissionFieldsFragment[] when no error is present
+            this.permissions.set([...(result.data.permissions as PermissionFieldsFragment[])]);
           }
         }
       },
@@ -117,9 +119,9 @@ export class PermissionListPage implements OnInit {
       .subscribe(() => {
         this.rolesService.deletePermission(permission.id).subscribe({
           next: (result) => {
-            if (result.errors?.length) {
-              const appError = mapError(result.errors[0] as unknown as Error);
-              this.notification.error(appError.message);
+            // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+            if (result.error) {
+              this.notification.error(mapError(result.error as Error).message);
             } else {
               this.notification.success('Permission deleted successfully.');
               void this.queryRef.refetch();

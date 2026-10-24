@@ -103,13 +103,17 @@ export class UserListPage implements OnInit {
     this.queryRef.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.loading.set(result.loading);
-        if (result.errors?.length) {
-          this.error.set(mapError(result.errors[0] as unknown as Error));
+        // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+        if (result.error) {
+          this.error.set(mapError(result.error as Error));
         } else {
           this.error.set(null);
           if (result.data?.users) {
-            this.users.set([...result.data.users.content]);
-            this.totalElements.set(result.data.users.totalElements);
+            // DeepPartialObject: with errorPolicy:'all', Apollo v4 types data as MaybeDeepPartial.
+            // At this point the result has no errors so the data is complete; assert the full type.
+            this.users.set([...(result.data.users.content as UserFieldsFragment[])]);
+            // totalElements is typed as number | undefined in the partial type; default to 0
+            this.totalElements.set(result.data.users.totalElements ?? 0);
           }
         }
       },
@@ -200,21 +204,33 @@ export class UserListPage implements OnInit {
       .afterClosed()
       .pipe(filter(Boolean))
       .subscribe(() => {
-        const mutation$ = user.accountLocked
-          ? this.usersService.unlockUser(user.id)
-          : this.usersService.lockUser(user.id);
-
-        mutation$.subscribe({
-          next: (result) => {
-            if (result.errors?.length) {
-              const appError = mapError(result.errors[0] as unknown as Error);
-              this.notification.error(appError.message);
-            } else {
-              this.notification.success(`User ${action.toLowerCase()}ed successfully.`);
-            }
-          },
-          error: () => this.notification.error('Failed to update user status.'),
-        });
+        // Separate branches are required because the TypeScript union of two Observable types
+        // (Observable<MutateResult<LockUserMutation>> | Observable<MutateResult<UnlockUserMutation>>)
+        // does not have a usable subscribe() overload; each branch gets a concrete type.
+        if (user.accountLocked) {
+          this.usersService.unlockUser(user.id).subscribe({
+            next: (result) => {
+              // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+              if (result.error) {
+                this.notification.error(mapError(result.error as Error).message);
+              } else {
+                this.notification.success(`User ${action.toLowerCase()}ed successfully.`);
+              }
+            },
+            error: () => this.notification.error('Failed to update user status.'),
+          });
+        } else {
+          this.usersService.lockUser(user.id).subscribe({
+            next: (result) => {
+              if (result.error) {
+                this.notification.error(mapError(result.error as Error).message);
+              } else {
+                this.notification.success(`User ${action.toLowerCase()}ed successfully.`);
+              }
+            },
+            error: () => this.notification.error('Failed to update user status.'),
+          });
+        }
       });
   }
 
@@ -241,9 +257,9 @@ export class UserListPage implements OnInit {
       .subscribe(() => {
         this.usersService.deleteUser(user.id).subscribe({
           next: (result) => {
-            if (result.errors?.length) {
-              const appError = mapError(result.errors[0] as unknown as Error);
-              this.notification.error(appError.message);
+            // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+            if (result.error) {
+              this.notification.error(mapError(result.error as Error).message);
             } else {
               this.notification.success('User deleted successfully.');
               void this.queryRef.refetch();

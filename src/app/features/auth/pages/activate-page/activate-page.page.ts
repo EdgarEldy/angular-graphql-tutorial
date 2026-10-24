@@ -58,8 +58,9 @@ export class ActivatePagePage implements OnInit {
     }
     this.authFeature.activateAccount(token).subscribe({
       next: (result) => {
-        if (result.errors?.length) {
-          const appError = mapError(result.errors[0] as unknown as Error);
+        // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+        if (result.error) {
+          const appError = mapError(result.error as Error);
           this.errorMessage.set(appError.message);
           this.state.set('error');
           return;

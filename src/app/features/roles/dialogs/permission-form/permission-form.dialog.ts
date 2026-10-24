@@ -92,8 +92,9 @@ export class PermissionFormDialog {
     this.rolesService.createPermission({ resource, action }).subscribe({
       next: (result: Apollo.MutateResult<CreatePermissionMutation>) => {
         this.loading.set(false);
-        if (result.errors?.length) {
-          const appError = mapError(result.errors[0] as unknown as Error);
+        // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+        if (result.error) {
+          const appError = mapError(result.error as Error);
           this.errorMessage.set(appError.message);
           return;
         }

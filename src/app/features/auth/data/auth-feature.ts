@@ -46,7 +46,7 @@ export class AuthFeature {
    * can show a BAD_REQUEST message (e.g. email already taken) inline.
    *
    * @param input - Registration form values: firstName, lastName, email, password.
-   * @returns Observable of the raw mutation result; errors in result.errors.
+   * @returns Observable of the raw mutation result; errors in result.error (Apollo v4).
    */
   register(
     input: RegisterMutationVariables['input'],

@@ -86,28 +86,49 @@ export class RoleFormDialog {
     const { roleName } = this.form.getRawValue();
     const roleId = this.data.role?.id;
 
-    const mutation$ = roleId
-      ? this.rolesService.updateRole(roleId, { roleName })
-      : this.rolesService.createRole({ roleName });
-
-    mutation$.subscribe({
-      next: (result) => {
-        this.loading.set(false);
-        if (result.errors?.length) {
-          const appError = mapError(result.errors[0] as unknown as Error);
-          this.errorMessage.set(appError.message);
-          return;
-        }
-        const savedRole = roleId
-          ? (result.data as { updateRole: RoleFieldsFragment }).updateRole
-          : (result.data as { createRole: RoleFieldsFragment }).createRole;
-        this.notification.success(`Role ${roleId ? 'updated' : 'created'} successfully.`);
-        this.dialogRef.close(savedRole);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.errorMessage.set('An unexpected error occurred. Please try again.');
-      },
-    });
+    // Separate branches are required because the TypeScript union of two Observable types
+    // (Observable<MutateResult<CreateRoleMutation>> | Observable<MutateResult<UpdateRoleMutation>>)
+    // does not have a usable subscribe() overload; each branch gets a concrete type.
+    if (roleId) {
+      this.rolesService.updateRole(roleId, { roleName }).subscribe({
+        next: (result) => {
+          this.loading.set(false);
+          // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+          if (result.error) {
+            this.errorMessage.set(mapError(result.error as Error).message);
+            return;
+          }
+          const savedRole = result.data?.updateRole;
+          if (savedRole) {
+            this.notification.success('Role updated successfully.');
+            this.dialogRef.close(savedRole);
+          }
+        },
+        error: () => {
+          this.loading.set(false);
+          this.errorMessage.set('An unexpected error occurred. Please try again.');
+        },
+      });
+    } else {
+      this.rolesService.createRole({ roleName }).subscribe({
+        next: (result) => {
+          this.loading.set(false);
+          // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+          if (result.error) {
+            this.errorMessage.set(mapError(result.error as Error).message);
+            return;
+          }
+          const savedRole = result.data?.createRole;
+          if (savedRole) {
+            this.notification.success('Role created successfully.');
+            this.dialogRef.close(savedRole);
+          }
+        },
+        error: () => {
+          this.loading.set(false);
+          this.errorMessage.set('An unexpected error occurred. Please try again.');
+        },
+      });
+    }
   }
 }

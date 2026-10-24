@@ -94,7 +94,8 @@ export class ManagePermissionsDialog {
       next: (result) => {
         this.loadingPermissions.set(false);
         if (result.data?.permissions) {
-          this.allPermissions.set([...result.data.permissions]);
+          // DeepPartialObject: cast to PermissionFieldsFragment[] when data is present
+          this.allPermissions.set([...(result.data.permissions as PermissionFieldsFragment[])]);
         }
       },
       error: () => this.loadingPermissions.set(false),
@@ -116,8 +117,9 @@ export class ManagePermissionsDialog {
     this.rolesService.assignPermissionToRole(this.role().id, permissionId).subscribe({
       next: (result: Apollo.MutateResult<AssignPermissionToRoleMutation>) => {
         this.mutating.set(false);
-        if (result.errors?.length) {
-          const appError = mapError(result.errors[0] as unknown as Error);
+        // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+        if (result.error) {
+          const appError = mapError(result.error as Error);
           this.notification.error(appError.message);
           return;
         }
@@ -148,8 +150,9 @@ export class ManagePermissionsDialog {
     this.rolesService.removePermissionFromRole(this.role().id, permission.id).subscribe({
       next: (result: Apollo.MutateResult<RemovePermissionFromRoleMutation>) => {
         this.mutating.set(false);
-        if (result.errors?.length) {
-          const appError = mapError(result.errors[0] as unknown as Error);
+        // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+        if (result.error) {
+          const appError = mapError(result.error as Error);
           this.notification.error(appError.message);
           return;
         }

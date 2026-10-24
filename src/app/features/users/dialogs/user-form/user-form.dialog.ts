@@ -120,28 +120,50 @@ export class UserFormDialog {
     const { firstName, lastName, email, password } = this.form.getRawValue();
     const userId = this.data.user?.id;
 
-    const mutation$ = userId
-      ? this.usersService.updateUser(userId, { firstName, lastName, email })
-      : this.usersService.createUser({ firstName, lastName, email, password });
-
-    mutation$.subscribe({
-      next: (result) => {
-        this.loading.set(false);
-        if (result.errors?.length) {
-          const appError = mapError(result.errors[0] as unknown as Error);
-          this.errorMessage.set(appError.message);
-          return;
-        }
-        const savedUser = userId
-          ? (result.data as { updateUser: UserFieldsFragment }).updateUser
-          : (result.data as { createUser: UserFieldsFragment }).createUser;
-        this.notification.success(`User ${userId ? 'updated' : 'created'} successfully.`);
-        this.dialogRef.close(savedUser);
-      },
-      error: () => {
-        this.loading.set(false);
-        this.errorMessage.set('An unexpected error occurred. Please try again.');
-      },
-    });
+    // Separate branches are required because the TypeScript union of two Observable types
+    // (Observable<MutateResult<CreateUserMutation>> | Observable<MutateResult<UpdateUserMutation>>)
+    // does not have a usable subscribe() overload. Splitting into if/else gives each branch
+    // a concrete type that TypeScript can check individually.
+    if (userId) {
+      this.usersService.updateUser(userId, { firstName, lastName, email }).subscribe({
+        next: (result) => {
+          this.loading.set(false);
+          // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+          if (result.error) {
+            this.errorMessage.set(mapError(result.error as Error).message);
+            return;
+          }
+          const savedUser = result.data?.updateUser;
+          if (savedUser) {
+            this.notification.success('User updated successfully.');
+            this.dialogRef.close(savedUser);
+          }
+        },
+        error: () => {
+          this.loading.set(false);
+          this.errorMessage.set('An unexpected error occurred. Please try again.');
+        },
+      });
+    } else {
+      this.usersService.createUser({ firstName, lastName, email, password }).subscribe({
+        next: (result) => {
+          this.loading.set(false);
+          // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+          if (result.error) {
+            this.errorMessage.set(mapError(result.error as Error).message);
+            return;
+          }
+          const savedUser = result.data?.createUser;
+          if (savedUser) {
+            this.notification.success('User created successfully.');
+            this.dialogRef.close(savedUser);
+          }
+        },
+        error: () => {
+          this.loading.set(false);
+          this.errorMessage.set('An unexpected error occurred. Please try again.');
+        },
+      });
+    }
   }
 }
