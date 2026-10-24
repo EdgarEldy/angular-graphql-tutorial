@@ -2,13 +2,12 @@ import { inject } from '@angular/core';
 import { HttpLink } from 'apollo-angular/http';
 import { ApolloClient, InMemoryCache, split } from '@apollo/client/core';
 import { ErrorLink } from '@apollo/client/link/error';
-import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getMainDefinition } from '@apollo/client/utilities';
-import { createClient } from 'graphql-ws';
 import { Router } from '@angular/router';
-import { environment } from '../../../environments/environment';
 import { Auth } from '../auth/auth';
 import { mapError } from './error-mapper';
+import { WsClientService } from './ws-client';
+import { environment } from '../../../environments/environment';
 
 /**
  * Factory function that builds the ApolloClient configuration for the application.
@@ -37,6 +36,9 @@ export function apolloOptionsFactory(): ApolloClient.Options {
   const httpLink = inject(HttpLink);
   const auth = inject(Auth);
   const router = inject(Router);
+  // WsClientService owns the graphql-ws client lifecycle; reconnect() is
+  // called by AuthService after login/logout to swap the inner client.
+  const wsClientService = inject(WsClientService);
 
   // Apollo Angular's HttpLink uses Angular's HttpClient under the hood, so the
   // authInterceptor automatically attaches the Bearer token to every HTTP request.
@@ -56,28 +58,15 @@ export function apolloOptionsFactory(): ApolloClient.Options {
     return forward(operation);
   });
 
-  // graphql-ws manages the WebSocket lifecycle (reconnection, keep-alive, etc.).
-  // connectionParams runs on each connection/reconnection, so it always uses the
-  // current token -- important when the user logs in or logs out while the page is open.
-  const wsLink = new GraphQLWsLink(
-    createClient({
-      url: environment.wsUrl,
-      connectionParams: () => {
-        const token = auth.getToken();
-        return token ? { Authorization: `Bearer ${token}` } : {};
-      },
-    }),
-  );
-
   // split() routes operations by kind: subscription -> WebSocket, everything else -> HTTP.
-  // The error link is placed only on the HTTP side because WebSocket errors are handled
-  // by the graphql-ws client itself (via connectionParams / reconnect logic).
+  // The error link sits on the HTTP side only; WebSocket errors are handled by graphql-ws
+  // (retries, keep-alive) and by the WsClientService reconnect on auth changes.
   const splitLink = split(
     ({ query }) => {
       const definition = getMainDefinition(query);
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
     },
-    wsLink,
+    wsClientService.link,
     errorLink.concat(http),
   );
 
