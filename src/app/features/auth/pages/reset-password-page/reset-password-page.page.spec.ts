@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { ResetPasswordPagePage } from './reset-password-page.page';
 import { AuthFeature } from '../../data/auth-feature';
 
@@ -14,15 +15,17 @@ import { AuthFeature } from '../../data/auth-feature';
 describe('ResetPasswordPagePage', () => {
   let component: ResetPasswordPagePage;
   let fixture: ComponentFixture<ResetPasswordPagePage>;
-  let authFeatureSpy: jasmine.SpyObj<AuthFeature>;
+
+  // vi.fn() replaces jasmine.createSpyObj
+  const authFeatureMock = { resetPassword: vi.fn() };
 
   beforeEach(async () => {
-    authFeatureSpy = jasmine.createSpyObj<AuthFeature>('AuthFeature', ['resetPassword']);
+    vi.clearAllMocks();
 
     await TestBed.configureTestingModule({
       imports: [ResetPasswordPagePage, NoopAnimationsModule, RouterModule.forRoot([])],
       providers: [
-        { provide: AuthFeature, useValue: authFeatureSpy },
+        { provide: AuthFeature, useValue: authFeatureMock },
         {
           provide: ActivatedRoute,
           useValue: { snapshot: { queryParamMap: { get: (_key: string) => 'valid-token' } } },
@@ -39,39 +42,46 @@ describe('ResetPasswordPagePage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should show passwordMismatch error when passwords differ', () => {
+  it('shows passwordMismatch error when passwords differ', () => {
     component.form.controls.newPassword.setValue('password123');
     component.form.controls.confirmPassword.setValue('different456');
     component.form.controls.confirmPassword.markAsTouched();
-    expect(component.passwordMismatch).toBeTrue();
+    // toBe(true) is the Vitest equivalent of Jasmine's toBeTrue()
+    expect(component.passwordMismatch).toBe(true);
   });
 
-  it('should not show mismatch when passwords match', () => {
+  it('clears mismatch error when passwords match', () => {
     component.form.controls.newPassword.setValue('password123');
     component.form.controls.confirmPassword.setValue('password123');
-    expect(component.passwordMismatch).toBeFalse();
+    // toBe(false) is the Vitest equivalent of Jasmine's toBeFalse()
+    expect(component.passwordMismatch).toBe(false);
   });
 
-  it('should not call resetPassword when form is invalid', () => {
+  it('does not call resetPassword when form is invalid', () => {
     component.submit();
-    expect(authFeatureSpy.resetPassword).not.toHaveBeenCalled();
+    expect(authFeatureMock.resetPassword).not.toHaveBeenCalled();
   });
 
-  it('should transition to success=true on successful reset', () => {
-    authFeatureSpy.resetPassword.and.returnValue(of({ data: { resetPassword: true } }));
+  it('transitions to success=true on successful reset', () => {
+    authFeatureMock.resetPassword.mockReturnValue(
+      of({ data: { resetPassword: true }, loading: false }),
+    );
     component.form.controls.newPassword.setValue('newpassword123');
     component.form.controls.confirmPassword.setValue('newpassword123');
     component.submit();
-    expect(component.success()).toBeTrue();
+    expect(component.success()).toBe(true);
   });
 
-  it('should show inline error on BAD_REQUEST', () => {
-    const graphqlError = { message: 'Token expired', extensions: { classification: 'BAD_REQUEST' } };
-    authFeatureSpy.resetPassword.and.returnValue(of({ errors: [graphqlError] } as never));
+  it('shows inline error on BAD_REQUEST and does not set success', () => {
+    // Apollo v4: error is in result.error, a CombinedGraphQLErrors instance
+    const error = new CombinedGraphQLErrors({
+      errors: [{ message: 'Token expired', extensions: { classification: 'BAD_REQUEST' } }],
+    });
+    authFeatureMock.resetPassword.mockReturnValue(of({ error, data: null, loading: false }));
     component.form.controls.newPassword.setValue('newpassword123');
     component.form.controls.confirmPassword.setValue('newpassword123');
     component.submit();
-    expect(component.success()).toBeFalse();
+    expect(component.success()).toBe(false);
     expect(component.errorMessage()).not.toBeNull();
   });
 });

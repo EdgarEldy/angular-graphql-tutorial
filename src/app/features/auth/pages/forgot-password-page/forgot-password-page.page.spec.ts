@@ -14,14 +14,16 @@ import { AuthFeature } from '../../data/auth-feature';
 describe('ForgotPasswordPagePage', () => {
   let component: ForgotPasswordPagePage;
   let fixture: ComponentFixture<ForgotPasswordPagePage>;
-  let authFeatureSpy: jasmine.SpyObj<AuthFeature>;
+
+  // vi.fn() replaces jasmine.createSpyObj
+  const authFeatureMock = { requestPasswordReset: vi.fn() };
 
   beforeEach(async () => {
-    authFeatureSpy = jasmine.createSpyObj<AuthFeature>('AuthFeature', ['requestPasswordReset']);
+    vi.clearAllMocks();
 
     await TestBed.configureTestingModule({
       imports: [ForgotPasswordPagePage, NoopAnimationsModule, RouterModule.forRoot([])],
-      providers: [{ provide: AuthFeature, useValue: authFeatureSpy }],
+      providers: [{ provide: AuthFeature, useValue: authFeatureMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ForgotPasswordPagePage);
@@ -35,22 +37,28 @@ describe('ForgotPasswordPagePage', () => {
 
   it('should not submit when email is invalid', () => {
     component.submit();
-    expect(authFeatureSpy.requestPasswordReset).not.toHaveBeenCalled();
-    expect(component.submitted()).toBeFalse();
+    expect(authFeatureMock.requestPasswordReset).not.toHaveBeenCalled();
+    // toBe(false) is the Vitest equivalent of Jasmine's toBeFalse()
+    expect(component.submitted()).toBe(false);
   });
 
-  it('should transition to submitted on success (email enumeration protection)', () => {
-    authFeatureSpy.requestPasswordReset.and.returnValue(of({ data: { requestPasswordReset: true } }));
+  it('transitions to submitted on success (email enumeration protection)', () => {
+    authFeatureMock.requestPasswordReset.mockReturnValue(
+      of({ data: { requestPasswordReset: true }, loading: false }),
+    );
     component.form.controls.email.setValue('user@example.com');
     component.submit();
-    expect(component.submitted()).toBeTrue();
+    // toBe(true) is the Vitest equivalent of Jasmine's toBeTrue()
+    expect(component.submitted()).toBe(true);
   });
 
-  it('should transition to submitted even when backend returns an error (email enumeration protection)', () => {
-    // Even a network error must not reveal that the email does not exist
-    authFeatureSpy.requestPasswordReset.and.returnValue(throwError(() => new Error('network')));
+  it('transitions to submitted even when backend returns an error (email enumeration protection)', () => {
+    // Even a network error must not reveal whether the email is registered
+    authFeatureMock.requestPasswordReset.mockReturnValue(
+      throwError(() => new Error('network')),
+    );
     component.form.controls.email.setValue('user@example.com');
     component.submit();
-    expect(component.submitted()).toBeTrue();
+    expect(component.submitted()).toBe(true);
   });
 });

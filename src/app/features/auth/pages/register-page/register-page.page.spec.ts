@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { RegisterPagePage } from './register-page.page';
 import { AuthFeature } from '../../data/auth-feature';
 
@@ -15,14 +15,16 @@ import { AuthFeature } from '../../data/auth-feature';
 describe('RegisterPagePage', () => {
   let component: RegisterPagePage;
   let fixture: ComponentFixture<RegisterPagePage>;
-  let authFeatureSpy: jasmine.SpyObj<AuthFeature>;
+
+  // vi.fn() replaces jasmine.createSpyObj
+  const authFeatureMock = { register: vi.fn() };
 
   beforeEach(async () => {
-    authFeatureSpy = jasmine.createSpyObj<AuthFeature>('AuthFeature', ['register']);
+    vi.clearAllMocks();
 
     await TestBed.configureTestingModule({
       imports: [RegisterPagePage, NoopAnimationsModule, RouterModule.forRoot([])],
-      providers: [{ provide: AuthFeature, useValue: authFeatureSpy }],
+      providers: [{ provide: AuthFeature, useValue: authFeatureMock }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(RegisterPagePage);
@@ -36,23 +38,26 @@ describe('RegisterPagePage', () => {
 
   it('should not call register when form is invalid', () => {
     component.submit();
-    expect(authFeatureSpy.register).not.toHaveBeenCalled();
+    expect(authFeatureMock.register).not.toHaveBeenCalled();
   });
 
   it('should require a valid email format', () => {
     component.form.controls.email.setValue('bad-email');
     component.form.controls.email.markAsTouched();
-    expect(component.emailControl.hasError('email')).toBeTrue();
+    // toBe(true) is the Vitest equivalent of Jasmine's toBeTrue()
+    expect(component.emailControl.hasError('email')).toBe(true);
   });
 
   it('should require password min length of 8', () => {
     component.form.controls.password.setValue('short');
     component.form.controls.password.markAsTouched();
-    expect(component.passwordControl.hasError('minlength')).toBeTrue();
+    expect(component.passwordControl.hasError('minlength')).toBe(true);
   });
 
   it('should set registered signal to true on success', () => {
-    authFeatureSpy.register.and.returnValue(of({ data: { register: { token: null, user: {} as never } } }));
+    authFeatureMock.register.mockReturnValue(
+      of({ data: { register: { id: '1', email: 'jane@example.com' } }, loading: false }),
+    );
     component.form.setValue({
       firstName: 'Jane',
       lastName: 'Doe',
@@ -60,12 +65,15 @@ describe('RegisterPagePage', () => {
       password: 'password123',
     });
     component.submit();
-    expect(component.registered()).toBeTrue();
+    expect(component.registered()).toBe(true);
   });
 
   it('should show inline error on BAD_REQUEST and not set registered', () => {
-    const graphqlError = { message: 'Email already taken', extensions: { classification: 'BAD_REQUEST' } };
-    authFeatureSpy.register.and.returnValue(of({ errors: [graphqlError] } as never));
+    // Apollo v4: error is in result.error, a CombinedGraphQLErrors instance
+    const error = new CombinedGraphQLErrors({
+      errors: [{ message: 'Email already taken', extensions: { classification: 'BAD_REQUEST' } }],
+    });
+    authFeatureMock.register.mockReturnValue(of({ error, data: null, loading: false }));
     component.form.setValue({
       firstName: 'Jane',
       lastName: 'Doe',
@@ -73,7 +81,8 @@ describe('RegisterPagePage', () => {
       password: 'password123',
     });
     component.submit();
-    expect(component.registered()).toBeFalse();
+    // toBe(false) is the Vitest equivalent of Jasmine's toBeFalse()
+    expect(component.registered()).toBe(false);
     expect(component.errorMessage()).not.toBeNull();
   });
 });
