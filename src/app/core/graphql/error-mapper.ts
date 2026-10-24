@@ -1,6 +1,8 @@
-import { ApolloError } from '@apollo/client/core';
+import { CombinedGraphQLErrors, ServerError } from '@apollo/client/errors';
 import { AppError, ErrorKind } from './app-error.model';
 
+// Apollo Client v4 replaced the monolithic ApolloError with narrowed error classes:
+// CombinedGraphQLErrors for server-side errors[] and ServerError for HTTP-level failures.
 const classificationMap: Readonly<Record<string, ErrorKind>> = {
   NOT_FOUND: 'NOT_FOUND',
   BAD_REQUEST: 'BAD_REQUEST',
@@ -9,34 +11,46 @@ const classificationMap: Readonly<Record<string, ErrorKind>> = {
 } as const;
 
 /**
- * Converts an ApolloError (GraphQL or network) into a typed AppError understood by the UI.
+ * Converts an Apollo v4 error (from the ErrorLink callback) into a typed AppError
+ * that the rest of the application can react to without knowing Apollo internals.
  *
- * Apollo can report two kinds of problems: GraphQL errors returned by the server inside the
- * `errors` array (classified via `extensions.classification`) and transport-level network
- * errors. This function checks network errors first because they short-circuit the GraphQL
- * error inspection -- a 401 response never carries a GraphQL body.
+ * Apollo Client v4 delivers three kinds of errors to the error link:
+ * - `CombinedGraphQLErrors`: the server executed the operation and returned one or more
+ *   errors in the `errors[]` array. The classification comes from `extensions.classification`.
+ * - `ServerError`: the server responded with a non-200 HTTP status code (e.g. 401 when
+ *   the JWT has expired before the GraphQL engine runs). The status code is on `.statusCode`.
+ * - A plain `Error`: a transport-level failure (DNS, timeout, CORS). No HTTP status.
  *
- * @param error - The ApolloError thrown or forwarded by the Apollo link chain.
+ * `ServerError` is checked before `CombinedGraphQLErrors` because a 401 HTTP response
+ * never carries a GraphQL body, so the `errors[]` branch would not match.
+ *
+ * @param error - The error delivered by the Apollo ErrorLink callback.
  * @returns A normalised AppError with a stable `kind` enum value the rest of the app reacts to.
  */
-export function mapApolloError(error: ApolloError): AppError {
-  if (error.networkError) {
-    const status = (error.networkError as { status?: number }).status;
-    if (status === 401) {
+export function mapError(error: Error): AppError {
+  if (ServerError.is(error)) {
+    if (error.statusCode === 401) {
       return { kind: 'UNAUTHENTICATED', message: 'Your session has expired. Please log in again.' };
     }
-    if (status === 403) {
+    if (error.statusCode === 403) {
       return { kind: 'FORBIDDEN', message: 'You do not have permission to perform this action.' };
     }
-    return { kind: 'NETWORK', message: 'A network error occurred. Please check your connection and try again.' };
+    return {
+      kind: 'NETWORK',
+      message: 'A network error occurred. Please check your connection and try again.',
+    };
   }
 
-  if (error.graphQLErrors && error.graphQLErrors.length > 0) {
-    const first = error.graphQLErrors[0];
-    const classification = first.extensions?.['classification'] as string | undefined;
+  if (CombinedGraphQLErrors.is(error)) {
+    const first = error.errors[0];
+    const classification = first?.extensions?.['classification'] as string | undefined;
     const kind: ErrorKind = classificationMap[classification ?? ''] ?? 'INTERNAL_ERROR';
-    return { kind, message: first.message };
+    return { kind, message: first?.message ?? 'An unexpected error occurred.' };
   }
 
-  return { kind: 'INTERNAL_ERROR', message: 'An unexpected error occurred.' };
+  // Plain network error: connection refused, DNS failure, timeout, etc.
+  return {
+    kind: 'NETWORK',
+    message: 'A network error occurred. Please check your connection and try again.',
+  };
 }
