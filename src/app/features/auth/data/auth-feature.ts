@@ -1,6 +1,5 @@
 import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { FetchResult } from '@apollo/client/core';
 import { Observable } from 'rxjs';
 import {
   ActivateAccountDocument,
@@ -51,7 +50,7 @@ export class AuthFeature {
    */
   register(
     input: RegisterMutationVariables['input'],
-  ): Observable<FetchResult<RegisterMutation>> {
+  ): Observable<Apollo.MutateResult<RegisterMutation>> {
     return this.apollo.mutate<RegisterMutation, RegisterMutationVariables>({
       mutation: RegisterDocument,
       variables: { input },
@@ -70,7 +69,7 @@ export class AuthFeature {
    */
   activateAccount(
     token: ActivateAccountMutationVariables['token'],
-  ): Observable<FetchResult<ActivateAccountMutation>> {
+  ): Observable<Apollo.MutateResult<ActivateAccountMutation>> {
     return this.apollo.mutate<ActivateAccountMutation, ActivateAccountMutationVariables>({
       mutation: ActivateAccountDocument,
       variables: { token },
@@ -90,7 +89,7 @@ export class AuthFeature {
    */
   requestPasswordReset(
     email: RequestPasswordResetMutationVariables['email'],
-  ): Observable<FetchResult<RequestPasswordResetMutation>> {
+  ): Observable<Apollo.MutateResult<RequestPasswordResetMutation>> {
     return this.apollo.mutate<
       RequestPasswordResetMutation,
       RequestPasswordResetMutationVariables
@@ -115,7 +114,7 @@ export class AuthFeature {
   resetPassword(
     token: ResetPasswordMutationVariables['token'],
     newPassword: ResetPasswordMutationVariables['newPassword'],
-  ): Observable<FetchResult<ResetPasswordMutation>> {
+  ): Observable<Apollo.MutateResult<ResetPasswordMutation>> {
     return this.apollo.mutate<ResetPasswordMutation, ResetPasswordMutationVariables>({
       mutation: ResetPasswordDocument,
       variables: { token, newPassword },
