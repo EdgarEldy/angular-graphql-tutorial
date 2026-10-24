@@ -335,11 +335,11 @@ Depends on `feature/core-architecture`.
 
 ### Tasks
 
-- `CategoryFields` fragment, `.graphql` documents, `categories.service.ts`, routes, list page, create/edit dialog
-- Deleting a category that still has products returns `BAD_REQUEST`: show the backend message and keep the row
-- Cache update after create/update/delete so the list is correct on return
-- `Category` options are reused by the products feature (category select and filter): expose a small `CategoryOptionsService` or a query reused there rather than duplicating it
-- Tests: list states, form validation, delete rejection path
+- [x] `CategoryFields` fragment, `.graphql` documents, `categories.service.ts`, routes, list page, create/edit dialog
+- [x] Deleting a category that still has products returns `BAD_REQUEST`: show the backend message and keep the row
+- [x] Cache update after create/update/delete so the list is correct on return
+- [x] `Category` options are reused by the products feature (category select and filter): expose a small `CategoryOptionsService` or a query reused there rather than duplicating it
+- [x] Tests: list states, form validation, delete rejection path
 
 ## feature/products
 
