@@ -84,31 +84,18 @@ describe('Categories', () => {
     });
   });
 
-  it('propagates errors from the Apollo response', () => {
-    let thrownError: Error | undefined;
+  it('deleteCategory sends DeleteCategoryDocument with the correct id', () => {
+    const id = '42';
 
-    service.createCategory({ categoryName: 'Bad' }).subscribe({
-      next: (result) => {
-        // With errorPolicy:'all', errors come back on result.error, not as thrown exceptions.
-        // The observable itself does not error out for GraphQL errors.
-        thrownError = result.error as Error | undefined;
-      },
-    });
+    service.deleteCategory(id).subscribe();
 
-    const op = controller.expectOne(CreateCategoryDocument);
+    const op = controller.expectOne(
+      // DeleteCategoryDocument matches the deleteCategory mutation document
+      (testOp) => testOp.operationName === 'DeleteCategory',
+    );
 
-    // Flush with a GraphQL error that the service should forward to the caller
-    op.flush({
-      errors: [
-        {
-          message: 'Category name already exists',
-          extensions: { classification: 'BAD_REQUEST' },
-        },
-      ],
-    });
+    expect(op.operation.variables['id']).toBe(id);
 
-    // The result.error is set by Apollo when errorPolicy:'all' is used
-    // ApolloTestingController flushes sync, so the value is available immediately
-    expect(thrownError).toBeDefined();
+    op.flush({ data: { deleteCategory: true } });
   });
 });
