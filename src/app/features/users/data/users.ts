@@ -1,6 +1,5 @@
-import { inject, Injectable } from '@angular/core';
+﻿import { inject, Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { FetchResult } from '@apollo/client/core';
 import { Observable } from 'rxjs';
 import {
   AssignRoleToUserDocument,
@@ -80,7 +79,7 @@ export class Users {
    */
   createUser(
     input: CreateUserMutationVariables['input'],
-  ): Observable<FetchResult<CreateUserMutation>> {
+  ): Observable<Apollo.MutateResult<CreateUserMutation>> {
     return this.apollo.mutate<CreateUserMutation, CreateUserMutationVariables>({
       mutation: CreateUserDocument,
       variables: { input },
@@ -101,7 +100,7 @@ export class Users {
   updateUser(
     id: UpdateUserMutationVariables['id'],
     input: UpdateUserMutationVariables['input'],
-  ): Observable<FetchResult<UpdateUserMutation>> {
+  ): Observable<Apollo.MutateResult<UpdateUserMutation>> {
     return this.apollo.mutate<UpdateUserMutation, UpdateUserMutationVariables>({
       mutation: UpdateUserDocument,
       variables: { id, input },
@@ -118,7 +117,7 @@ export class Users {
    * @param id - ID of the user to lock.
    * @returns Observable of the raw mutation result.
    */
-  lockUser(id: LockUserMutationVariables['id']): Observable<FetchResult<LockUserMutation>> {
+  lockUser(id: LockUserMutationVariables['id']): Observable<Apollo.MutateResult<LockUserMutation>> {
     return this.apollo.mutate<LockUserMutation, LockUserMutationVariables>({
       mutation: LockUserDocument,
       variables: { id },
@@ -134,7 +133,7 @@ export class Users {
    */
   unlockUser(
     id: UnlockUserMutationVariables['id'],
-  ): Observable<FetchResult<UnlockUserMutation>> {
+  ): Observable<Apollo.MutateResult<UnlockUserMutation>> {
     return this.apollo.mutate<UnlockUserMutation, UnlockUserMutationVariables>({
       mutation: UnlockUserDocument,
       variables: { id },
@@ -154,7 +153,7 @@ export class Users {
    */
   deleteUser(
     id: DeleteUserMutationVariables['id'],
-  ): Observable<FetchResult<DeleteUserMutation>> {
+  ): Observable<Apollo.MutateResult<DeleteUserMutation>> {
     return this.apollo.mutate<DeleteUserMutation, DeleteUserMutationVariables>({
       mutation: DeleteUserDocument,
       variables: { id },
@@ -176,7 +175,7 @@ export class Users {
   assignRoleToUser(
     userId: AssignRoleToUserMutationVariables['userId'],
     roleId: AssignRoleToUserMutationVariables['roleId'],
-  ): Observable<FetchResult<AssignRoleToUserMutation>> {
+  ): Observable<Apollo.MutateResult<AssignRoleToUserMutation>> {
     return this.apollo.mutate<AssignRoleToUserMutation, AssignRoleToUserMutationVariables>({
       mutation: AssignRoleToUserDocument,
       variables: { userId, roleId },
@@ -196,7 +195,7 @@ export class Users {
   removeRoleFromUser(
     userId: RemoveRoleFromUserMutationVariables['userId'],
     roleId: RemoveRoleFromUserMutationVariables['roleId'],
-  ): Observable<FetchResult<RemoveRoleFromUserMutation>> {
+  ): Observable<Apollo.MutateResult<RemoveRoleFromUserMutation>> {
     return this.apollo.mutate<RemoveRoleFromUserMutation, RemoveRoleFromUserMutationVariables>({
       mutation: RemoveRoleFromUserDocument,
       variables: { userId, roleId },
