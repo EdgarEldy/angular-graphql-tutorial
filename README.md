@@ -311,16 +311,16 @@ Depends on `feature/core-architecture`. Authentication first, then administratio
 
 ### Tasks
 
-- `AuthService` (session signal, token storage, `login`, `logout`, session restore with `me`, `isAdmin`), `authGuard`, `adminGuard`, with tests
-- The `authInterceptor` already reads the token for HTTP: make the WebSocket link reconnect on login/logout
-- The five public screens above, with typed reactive forms and field-level validation matching the backend inputs (all fields required; valid email format; sensible password minimum length shown as UX guidance only, since the backend is the authority)
-- On a `BAD_REQUEST` returned by `register`, `login` or a form mutation, display the backend message
-- Return-URL handling after a forced redirect to `/login`
-- Admin screens above, using the `UserFields`, `RoleFields` fragments; `User.roles` and `Role.permissions` requested in the list queries (one round trip each)
-- After assignment mutations, update the cache from the returned `User`/`Role` so chips update immediately
-- A user must not be able to delete or lock **their own** account from the UI (disable those actions on the current user's row)
-- Navigation: show the Administration menu only to admins
-- Tests: error mapping into the login form, session restore, guards, role assignment cache update, a non-admin being redirected from an admin route
+- [x] `AuthService` (session signal, token storage, `login`, `logout`, session restore with `me`, `isAdmin`), `authGuard`, `adminGuard`, with tests
+- [x] The `authInterceptor` already reads the token for HTTP: make the WebSocket link reconnect on login/logout
+- [x] The five public screens above, with typed reactive forms and field-level validation matching the backend inputs (all fields required; valid email format; sensible password minimum length shown as UX guidance only, since the backend is the authority)
+- [x] On a `BAD_REQUEST` returned by `register`, `login` or a form mutation, display the backend message
+- [x] Return-URL handling after a forced redirect to `/login`
+- [x] Admin screens above, using the `UserFields`, `RoleFields` fragments; `User.roles` and `Role.permissions` requested in the list queries (one round trip each)
+- [x] After assignment mutations, update the cache from the returned `User`/`Role` so chips update immediately
+- [x] A user must not be able to delete or lock **their own** account from the UI (disable those actions on the current user's row)
+- [x] Navigation: show the Administration menu only to admins
+- [x] Tests: error mapping into the login form, session restore, guards, role assignment cache update, a non-admin being redirected from an admin route
 
 ## feature/categories
 
