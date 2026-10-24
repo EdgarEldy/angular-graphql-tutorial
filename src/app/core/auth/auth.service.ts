@@ -76,11 +76,11 @@ export class AuthService {
    * The WS client is replaced after a successful login so that the next
    * subscription connects with the fresh token in `connectionParams`. The
    * caller (the login page) is responsible for navigating on success and
-   * displaying `result.errors` for bad credentials.
+   * displaying `result.error` for bad credentials.
    *
    * @param input - Email and password from the login form.
    * @returns Observable of the raw mutation result; errors are in
-   *   `result.errors` when `errorPolicy: 'all'` is active.
+   *   `result.error` (Apollo v4 replaces the v3 `result.errors[]` array).
    */
   login(input: LoginMutationVariables['input']): Observable<Apollo.MutateResult<LoginMutation>> {
     return this.apollo

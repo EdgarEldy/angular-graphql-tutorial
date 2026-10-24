@@ -90,7 +90,8 @@ export class ManageRolesDialog {
         next: (result) => {
           this.loadingRoles.set(false);
           if (result.data?.roles) {
-            this.allRoles.set([...result.data.roles]);
+            // DeepPartialObject: cast to RoleFieldsFragment[] when data is present
+            this.allRoles.set([...(result.data.roles as RoleFieldsFragment[])]);
           }
         },
         error: () => this.loadingRoles.set(false),
@@ -112,14 +113,16 @@ export class ManageRolesDialog {
     this.usersService.assignRoleToUser(this.user().id, roleId).subscribe({
       next: (result) => {
         this.mutating.set(false);
-        if (result.errors?.length) {
-          const appError = mapError(result.errors[0] as unknown as Error);
-          this.notification.error(appError.message);
+        // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+        if (result.error) {
+          this.notification.error(mapError(result.error as Error).message);
           return;
         }
-        const updatedUser = (result.data as { assignRoleToUser: UserFieldsFragment }).assignRoleToUser;
-        this.user.set(updatedUser);
-        this.addRoleControl.reset();
+        const updatedUser = result.data?.assignRoleToUser;
+        if (updatedUser) {
+          this.user.set(updatedUser);
+          this.addRoleControl.reset();
+        }
       },
       error: () => {
         this.mutating.set(false);
@@ -142,13 +145,15 @@ export class ManageRolesDialog {
     this.usersService.removeRoleFromUser(this.user().id, role.id).subscribe({
       next: (result) => {
         this.mutating.set(false);
-        if (result.errors?.length) {
-          const appError = mapError(result.errors[0] as unknown as Error);
-          this.notification.error(appError.message);
+        // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+        if (result.error) {
+          this.notification.error(mapError(result.error as Error).message);
           return;
         }
-        const updatedUser = (result.data as { removeRoleFromUser: UserFieldsFragment }).removeRoleFromUser;
-        this.user.set(updatedUser);
+        const updatedUser = result.data?.removeRoleFromUser;
+        if (updatedUser) {
+          this.user.set(updatedUser);
+        }
       },
       error: () => {
         this.mutating.set(false);

@@ -80,12 +80,14 @@ export class RoleListPage implements OnInit {
     this.queryRef.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (result) => {
         this.loading.set(result.loading);
-        if (result.errors?.length) {
-          this.error.set(mapError(result.errors[0] as unknown as Error));
+        // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+        if (result.error) {
+          this.error.set(mapError(result.error as Error));
         } else {
           this.error.set(null);
           if (result.data?.roles) {
-            this.roles.set([...result.data.roles]);
+            // DeepPartialObject: cast to RoleFieldsFragment[] when no error is present
+            this.roles.set([...(result.data.roles as RoleFieldsFragment[])]);
           }
         }
       },
@@ -151,9 +153,9 @@ export class RoleListPage implements OnInit {
       .subscribe(() => {
         this.rolesService.deleteRole(role.id).subscribe({
           next: (result) => {
-            if (result.errors?.length) {
-              const appError = mapError(result.errors[0] as unknown as Error);
-              this.notification.error(appError.message);
+            // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
+            if (result.error) {
+              this.notification.error(mapError(result.error as Error).message);
             } else {
               this.notification.success('Role deleted successfully.');
               void this.queryRef.refetch();
