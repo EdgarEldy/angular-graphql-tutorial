@@ -1,6 +1,5 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { FetchResult } from '@apollo/client/core';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 import { Auth } from './auth';
 import { WsClientService } from '../graphql/ws-client';
@@ -83,7 +82,7 @@ export class AuthService {
    * @returns Observable of the raw mutation result; errors are in
    *   `result.errors` when `errorPolicy: 'all'` is active.
    */
-  login(input: LoginMutationVariables['input']): Observable<FetchResult<LoginMutation>> {
+  login(input: LoginMutationVariables['input']): Observable<Apollo.MutateResult<LoginMutation>> {
     return this.apollo
       .mutate<LoginMutation, LoginMutationVariables>({
         mutation: LoginDocument,
