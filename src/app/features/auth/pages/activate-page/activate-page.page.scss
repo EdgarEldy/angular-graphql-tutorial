@@ -1,0 +1,29 @@
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px;
+  min-height: 100vh;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+.activation-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  text-align: center;
+
+  &.success {
+    color: var(--mat-sys-on-surface, inherit);
+  }
+
+  &.error {
+    color: var(--mat-sys-error, #b00020);
+  }
+}

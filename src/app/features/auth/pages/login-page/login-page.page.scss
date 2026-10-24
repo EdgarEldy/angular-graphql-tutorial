@@ -1,0 +1,26 @@
+.auth-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 48px 16px;
+  min-height: 100vh;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.submit-btn {
+  margin-top: 8px;
+}
+
+.form-error {
+  color: var(--mat-sys-error, #b00020);
+  font-size: 0.875rem;
+  margin: 0 0 8px;
+}
