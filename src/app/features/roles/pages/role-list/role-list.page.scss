@@ -1,0 +1,17 @@
+.page-container {
+  padding: 16px;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.roles-table {
+  width: 100%;
+}
+
+.no-perms {
+  font-size: 0.75rem;
+  color: var(--mat-sys-on-surface-variant, #6c6c6c);
+  font-style: italic;
+}
