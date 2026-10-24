@@ -7,7 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "codegen:watch": "graphql-codegen --config codegen.ts --watch",
+    "schema:update": "curl -s https://raw.githubusercontent.com/EdgarEldy/spring-graphql-tutorial/master/src/main/resources/graphql/schema.graphqls -o schema/schema.graphqls"
   },
   "private": true,
   "packageManager": "npm@11.19.0",
