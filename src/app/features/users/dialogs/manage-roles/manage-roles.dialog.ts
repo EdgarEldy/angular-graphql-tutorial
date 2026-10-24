@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
@@ -7,13 +8,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Apollo } from 'apollo-angular';
 import { Users } from '../../data/users';
+import { Roles } from '../../../roles/data/roles';
 import { Notification } from '../../../../core/notification/notification';
 import { mapError } from '../../../../core/graphql/error-mapper';
 import {
-  GetRolesDocument,
-  type GetRolesQuery,
   type RoleFieldsFragment,
   type UserFieldsFragment,
 } from '../../../../core/graphql/generated/graphql';
@@ -58,7 +57,8 @@ export class ManageRolesDialog {
   readonly data = inject<ManageRolesDialogData>(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<ManageRolesDialog>);
   private readonly usersService = inject(Users);
-  private readonly apollo = inject(Apollo);
+  // Roles service provides watchRoles() -- dialogs must not inject Apollo directly
+  private readonly rolesService = inject(Roles);
   private readonly notification = inject(Notification);
 
   /** The user whose roles are being managed. Updated on every mutation result. */
@@ -83,10 +83,12 @@ export class ManageRolesDialog {
   });
 
   constructor() {
-    // Fetch available roles once on dialog open
-    this.apollo
-      .watchQuery<GetRolesQuery>({ query: GetRolesDocument, errorPolicy: 'all' })
-      .valueChanges.subscribe({
+    // Fetch available roles on dialog open via the feature service (not Apollo directly).
+    // takeUntilDestroyed() cleans up the subscription when the dialog is closed.
+    this.rolesService
+      .watchRoles()
+      .valueChanges.pipe(takeUntilDestroyed())
+      .subscribe({
         next: (result) => {
           this.loadingRoles.set(false);
           if (result.data?.roles) {
