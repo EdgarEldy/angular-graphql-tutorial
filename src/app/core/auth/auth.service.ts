@@ -13,7 +13,7 @@ import {
   type LogoutMutation,
   type MeQuery,
   type MeQueryVariables,
-} from '../graphql/generated/graphql-operations';
+} from '../graphql/generated/graphql';
 
 /** Shape of the currently signed-in user as returned by the `me` query. */
 export type SessionUser = NonNullable<MeQuery['me']>;
