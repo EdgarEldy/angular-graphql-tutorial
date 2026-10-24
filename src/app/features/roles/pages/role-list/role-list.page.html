@@ -7,7 +7,10 @@
   @if (loading()) {
     <app-loading />
   } @else if (error()) {
-    <app-error-banner [error]="error()!" (retryClicked)="retryLoad()" />
+    @let currentError = error();
+    @if (currentError) {
+      <app-error-banner [error]="currentError" (retryClicked)="retryLoad()" />
+    }
   } @else if (roles().length === 0) {
     <app-empty-state icon="admin_panel_settings" message="No roles found." />
   } @else {

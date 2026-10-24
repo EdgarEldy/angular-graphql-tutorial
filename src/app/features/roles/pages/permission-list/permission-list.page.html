@@ -7,7 +7,10 @@
   @if (loading()) {
     <app-loading />
   } @else if (error()) {
-    <app-error-banner [error]="error()!" (retryClicked)="retryLoad()" />
+    @let currentError = error();
+    @if (currentError) {
+      <app-error-banner [error]="currentError" (retryClicked)="retryLoad()" />
+    }
   } @else if (permissions().length === 0) {
     <app-empty-state icon="security" message="No permissions found." />
   } @else {
