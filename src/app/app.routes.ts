@@ -50,10 +50,40 @@ export const routes: Routes = [
       },
     ],
   },
+  // Auth pages are top-level routes so /register, /activate etc. are reachable
+  // directly and not nested under /login as children.
   {
     path: 'login',
-    loadChildren: () =>
-      import('./features/auth/auth.routes').then((m) => m.authRoutes),
+    loadComponent: () =>
+      import('./features/auth/pages/login-page/login-page.page').then((m) => m.LoginPagePage),
+  },
+  {
+    path: 'register',
+    loadComponent: () =>
+      import('./features/auth/pages/register-page/register-page.page').then(
+        (m) => m.RegisterPagePage,
+      ),
+  },
+  {
+    path: 'activate',
+    loadComponent: () =>
+      import('./features/auth/pages/activate-page/activate-page.page').then(
+        (m) => m.ActivatePagePage,
+      ),
+  },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('./features/auth/pages/forgot-password-page/forgot-password-page.page').then(
+        (m) => m.ForgotPasswordPagePage,
+      ),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('./features/auth/pages/reset-password-page/reset-password-page.page').then(
+        (m) => m.ResetPasswordPagePage,
+      ),
   },
   {
     path: '**',
