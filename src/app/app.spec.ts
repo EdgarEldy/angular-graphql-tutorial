@@ -14,10 +14,13 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('should render the router outlet', async () => {
+    // The Angular CLI scaffold initially generated an h1 "Hello..." test.
+    // The App template was replaced with a router outlet in the core-architecture
+    // branch, so this test now verifies that the router outlet is present.
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, angular-graphql-tutorial');
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });
