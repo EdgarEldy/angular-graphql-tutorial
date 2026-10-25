@@ -125,10 +125,12 @@ export class Categories {
   }
 
   /**
-   * Calls the deleteCategory mutation.
+   * Calls the deleteCategory mutation and evicts the entity from the cache.
    *
-   * Returns Boolean, so the cache cannot be updated automatically. The caller
-   * must call refetch() on the list QueryRef after a successful deletion.
+   * The mutation returns Boolean, so Apollo cannot auto-update the cache.
+   * The update callback uses cache.evict() to remove the normalised Category
+   * entry synchronously, so the list watchQuery drops the row without a
+   * network round-trip. cache.gc() then collects any dangling references.
    *
    * A BAD_REQUEST error is returned when the category still has associated
    * products. The caller is responsible for surfacing the backend message via
@@ -144,6 +146,12 @@ export class Categories {
       mutation: DeleteCategoryDocument,
       variables: { id },
       errorPolicy: 'all',
+      // evict() removes Category:<id> from the normalized cache so the list
+      // watchQuery updates immediately without a refetch round-trip.
+      update: (cache) => {
+        cache.evict({ id: cache.identify({ __typename: 'Category', id }) });
+        cache.gc();
+      },
     });
   }
 }
