@@ -71,6 +71,15 @@ export class CategoryFormDialog {
 
   /** True when editing an existing category; false when creating a new one. */
   readonly isEdit = computed(() => this.data.category !== null);
+
+  /**
+   * The dialog title displayed in the mat-dialog-title heading.
+   *
+   * Shows "Edit category" when a category was passed in (edit mode) and
+   * "Create category" when the dialog was opened without a category (create mode).
+   *
+   * @returns The dialog heading string.
+   */
   readonly title = computed(() => (this.isEdit() ? 'Edit category' : 'Create category'));
 
   readonly loading = signal(false);
@@ -125,7 +134,7 @@ export class CategoryFormDialog {
           this.loading.set(false);
           // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
           if (result.error) {
-            this.errorMessage.set(mapError(result.error as Error).message);
+            this.handleMutationError(result.error as Error);
             return;
           }
           const savedCategory = result.data?.updateCategory;
@@ -145,7 +154,7 @@ export class CategoryFormDialog {
           this.loading.set(false);
           // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
           if (result.error) {
-            this.errorMessage.set(mapError(result.error as Error).message);
+            this.handleMutationError(result.error as Error);
             return;
           }
           const savedCategory = result.data?.createCategory;
@@ -159,6 +168,31 @@ export class CategoryFormDialog {
           this.errorMessage.set('An unexpected error occurred. Please try again.');
         },
       });
+    }
+  }
+
+  /**
+   * Dispatches a mapped Apollo error to the correct UI surface.
+   *
+   * Only BAD_REQUEST keeps the dialog open with an inline message so the user
+   * can correct the input and resubmit. All other kinds (FORBIDDEN,
+   * INTERNAL_ERROR, NETWORK, NOT_FOUND, UNAUTHENTICATED) are surfaced as
+   * snackbar notifications and the dialog is closed, because they represent
+   * conditions the user cannot fix by editing the form.
+   *
+   * @param rawError - The raw error from the Apollo mutation result.
+   */
+  private handleMutationError(rawError: Error): void {
+    const appError = mapError(rawError);
+    if (appError.kind === 'BAD_REQUEST') {
+      // BAD_REQUEST is a business or validation message the user can act on:
+      // keep the dialog open so they can correct and resubmit.
+      this.errorMessage.set(appError.message);
+    } else {
+      // Any other kind (FORBIDDEN, INTERNAL_ERROR, NETWORK, etc.) cannot be
+      // resolved by editing the form; surface it as a snackbar and close.
+      this.notification.error(appError.message);
+      this.dialogRef.close();
     }
   }
 }
