@@ -191,6 +191,20 @@ describe('OrderFormDialog', () => {
     expect(ordersMock.createOrder).not.toHaveBeenCalled();
   });
 
+  it('does not call createOrder when loading is true (double-submit guard)', () => {
+    // Make the form valid so the only active guard is loading
+    component.form.controls.customerId.setValue('c1');
+    component.form.controls.productId.setValue('p1');
+    component.form.controls.quantity.setValue(1);
+
+    // Simulate an in-flight request by setting the loading signal to true
+    component.loading.set(true);
+    component.submit();
+
+    // submit() must return early without dispatching a second mutation
+    expect(ordersMock.createOrder).not.toHaveBeenCalled();
+  });
+
   it('shows inline error on BAD_REQUEST and keeps dialog open', () => {
     component.form.controls.customerId.setValue('c1');
     component.form.controls.productId.setValue('p1');
