@@ -354,10 +354,10 @@ Depends on `feature/categories`.
 
 ### Tasks
 
-- `ProductFields` fragment including `category { ...CategoryFields }`: the list must be **one** request, never one request per product row
-- Category filter: changing it resets to the first page and re-queries with `categoryId`
-- `unitPrice` input: numeric, greater than 0 (UX validation), displayed with the currency formatter
-- Tests: filter behavior, one-request list, form validation
+- [x] `ProductFields` fragment including `category { ...CategoryFields }`: the list must be **one** request, never one request per product row
+- [x] Category filter: changing it resets to the first page and re-queries with `categoryId`
+- [x] `unitPrice` input: numeric, greater than 0 (UX validation), displayed with the currency formatter
+- [x] Tests: filter behavior, one-request list, form validation
 
 ## feature/customers
 
