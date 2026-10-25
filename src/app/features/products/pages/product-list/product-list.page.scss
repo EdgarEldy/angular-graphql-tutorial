@@ -1,0 +1,21 @@
+.page-container {
+  padding: 16px;
+}
+
+.filter-bar {
+  margin-bottom: 16px;
+}
+
+.category-filter {
+  width: 240px;
+}
+
+.table-container {
+  // overflow-x: auto ensures the table scrolls horizontally on narrow viewports
+  // instead of causing a full-page horizontal scroll.
+  overflow-x: auto;
+}
+
+.products-table {
+  width: 100%;
+}
