@@ -203,13 +203,14 @@ export class CategoryListPage implements OnInit {
   /**
    * Shows a confirmation dialog, then deletes the category.
    *
-   * After a successful deletion, refetches the list because the Boolean return
-   * type of deleteCategory prevents Apollo from auto-evicting the entity from
-   * the cache.
+   * CategoriesService.deleteCategory() uses an Apollo update callback that calls
+   * cache.evict() to remove the Category entity immediately, so the watchQuery
+   * drops the row without a network round-trip. No explicit refetch() is needed.
    *
    * If the backend returns BAD_REQUEST (the category still has products), the
    * error message from the backend is surfaced verbatim via the notification
-   * service. The row is kept in place because refetch() is not called on error.
+   * service. The row is kept in place because no eviction or refetch happens
+   * when the mutation returns an error.
    *
    * @param category - The category to delete.
    */
@@ -232,8 +233,8 @@ export class CategoryListPage implements OnInit {
               // category still has products -- the business message explains why).
               this.notification.error(mapError(result.error as Error).message);
             } else {
+              // cache.evict() in the service already removed the row; just notify.
               this.notification.success('Category deleted successfully.');
-              void this.queryRef.refetch();
             }
           },
           error: () => this.notification.error('Failed to delete category.'),
