@@ -2,9 +2,21 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { of } from 'rxjs';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { CategoryFormDialog, type CategoryFormDialogData } from './category-form.dialog';
 import { Categories } from '../../data/categories';
 import { Notification } from '../../../../core/notification/notification';
+
+/**
+ * Builds a real CombinedGraphQLErrors instance so mapError() classifies the
+ * error correctly. A plain Error with a manually attached .errors array does
+ * not pass CombinedGraphQLErrors.is(), which mapError() uses to detect GraphQL errors.
+ */
+function makeCombinedError(classification: string, message: string): CombinedGraphQLErrors {
+  return new CombinedGraphQLErrors({
+    errors: [{ message, extensions: { classification } }],
+  });
+}
 
 /** Full CategoryFieldsFragment shape required by CategoryFormDialogData. */
 const existingCategory = {
@@ -143,15 +155,10 @@ describe('CategoryFormDialog', () => {
 
     component.form.controls.categoryName.setValue('Duplicate');
 
-    // Build an Apollo-like error object that mapError() will recognise as BAD_REQUEST
-    const apolloError = Object.assign(new Error('Category name already exists'), {
-      errors: [
-        {
-          message: 'Category name already exists',
-          extensions: { classification: 'BAD_REQUEST' },
-        },
-      ],
-    });
+    // Use a real CombinedGraphQLErrors so mapError() classifies it as BAD_REQUEST.
+    // A plain Error with a manually-attached .errors array does not pass the
+    // CombinedGraphQLErrors.is() instanceof check that mapError() relies on.
+    const apolloError = makeCombinedError('BAD_REQUEST', 'Category name already exists');
 
     categoriesMock.createCategory.mockReturnValue(of({ error: apolloError }));
 
