@@ -1,0 +1,11 @@
+.full-width {
+  // mat-form-field does not fill its container by default.
+  // Setting width: 100% ensures the input spans the dialog's content area.
+  width: 100%;
+}
+
+.form-error {
+  color: var(--mat-sys-error, #b00020);
+  font-size: 0.875rem;
+  margin-top: 4px;
+}
