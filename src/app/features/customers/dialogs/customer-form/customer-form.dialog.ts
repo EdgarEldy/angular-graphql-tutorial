@@ -2,7 +2,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  DestroyRef,
   inject,
   signal,
 } from '@angular/core';
@@ -80,10 +79,6 @@ export class CustomerFormDialog {
   private readonly dialogRef = inject(MatDialogRef<CustomerFormDialog>);
   private readonly customersService = inject(Customers);
   private readonly notification = inject(Notification);
-  // DestroyRef is not used here because we subscribe to a single Observable
-  // that completes on the first emission (the mutation result), so no
-  // takeUntilDestroyed cleanup is needed.
-  private readonly _destroyRef = inject(DestroyRef);
 
   /** True when editing an existing customer; false when creating a new one. */
   readonly isEdit = computed(() => this.data.customer !== null);
