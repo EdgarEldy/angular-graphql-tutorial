@@ -167,7 +167,11 @@ export class ProductFormDialog implements OnInit {
       .subscribe({
         next: (result) => {
           if (result.data?.categories?.content) {
-            this.categoryOptionsList.set(result.data.categories.content);
+            // With errorPolicy:'all', Apollo v4 types data as MaybeDeepPartial.
+            // At this point there are no errors so data is complete; assert the full type.
+            this.categoryOptionsList.set(
+              result.data.categories.content as GetCategoryOptionsQuery['categories']['content'],
+            );
           }
         },
       });
