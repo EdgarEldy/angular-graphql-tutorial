@@ -1,0 +1,13 @@
+.page-container {
+  padding: 16px;
+}
+
+.table-container {
+  // overflow-x: auto ensures the table scrolls horizontally on narrow viewports
+  // instead of causing a full-page horizontal scroll.
+  overflow-x: auto;
+}
+
+.categories-table {
+  width: 100%;
+}
