@@ -1,0 +1,82 @@
+<div class="page-container">
+  <div class="page-header">
+    <button mat-icon-button matTooltip="Back to orders" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="page-title">Order details</h1>
+  </div>
+
+  @if (loading()) {
+    <app-loading />
+  } @else if (notFound()) {
+    <div class="not-found">
+      <mat-icon class="not-found-icon">receipt_long</mat-icon>
+      <p>Order #{{ orderId }} was not found.</p>
+      <button mat-button (click)="goBack()">Back to orders</button>
+    </div>
+  } @else if (error()) {
+    @let currentError = error();
+    @if (currentError) {
+      <app-error-banner [error]="currentError" (retryClicked)="retryLoad()" />
+    }
+  } @else {
+    @let currentOrder = order();
+    @if (currentOrder) {
+      <div class="detail-grid">
+
+        <!-- Order summary card -->
+        <mat-card class="detail-card">
+          <mat-card-header>
+            <mat-card-title>Order #{{ currentOrder.id }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <dl class="detail-list">
+              <dt>Quantity</dt>
+              <dd>{{ currentOrder.quantity }}</dd>
+              <dt>Total</dt>
+              <!-- total is server-computed: quantity * product.unitPrice -->
+              <dd class="total-value">{{ currentOrder.total | currency }}</dd>
+            </dl>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Customer card -->
+        <mat-card class="detail-card">
+          <mat-card-header>
+            <mat-card-title>Customer</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <dl class="detail-list">
+              <dt>Name</dt>
+              <dd>{{ currentOrder.customer.firstName }} {{ currentOrder.customer.lastName }}</dd>
+              <dt>Email</dt>
+              <dd>{{ currentOrder.customer.email }}</dd>
+              <dt>Phone</dt>
+              <dd>{{ currentOrder.customer.telephone }}</dd>
+              <dt>Address</dt>
+              <dd>{{ currentOrder.customer.address }}</dd>
+            </dl>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Product card -->
+        <mat-card class="detail-card">
+          <mat-card-header>
+            <mat-card-title>Product</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <dl class="detail-list">
+              <dt>Name</dt>
+              <dd>{{ currentOrder.product.productName }}</dd>
+              <dt>Category</dt>
+              <dd>{{ currentOrder.product.category.categoryName }}</dd>
+              <dt>Unit price</dt>
+              <dd>{{ currentOrder.product.unitPrice | currency }}</dd>
+            </dl>
+          </mat-card-content>
+        </mat-card>
+
+      </div>
+    }
+  }
+</div>
