@@ -3,6 +3,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { Subject, of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { CustomerListPage } from './customer-list.page';
 import { Customers } from '../../data/customers';
 import { Notification } from '../../../../core/notification/notification';
@@ -179,11 +180,9 @@ describe('CustomerListPage', () => {
 
     dialogMock.open.mockReturnValue({ afterClosed: () => of(true) });
 
-    // Simulate backend rejecting deletion (e.g. customer has orders)
-    const { CombinedGraphQLErrors } = vi.importActual<typeof import('@apollo/client/errors')>(
-      '@apollo/client/errors',
-    ) as { CombinedGraphQLErrors: typeof import('@apollo/client/errors').CombinedGraphQLErrors };
-
+    // Use a real CombinedGraphQLErrors so mapError() classifies it as BAD_REQUEST.
+    // A plain Error with a manually-attached .errors array does not pass the
+    // CombinedGraphQLErrors.is() instanceof check that mapError() relies on.
     const apolloError = new CombinedGraphQLErrors({
       errors: [
         {
