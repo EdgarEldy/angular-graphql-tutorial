@@ -372,10 +372,10 @@ Depends on `feature/core-architecture`.
 
 ### Tasks
 
-- `CustomerFields` fragment, documents, `customers.service.ts`, routes, pages
-- Email format validation and required fields in the dialog form
-- Handle the backend rejecting a deletion (e.g. customer with orders) by showing its message
-- Tests
+- [x] `CustomerFields` fragment, documents, `customers.service.ts`, routes, pages
+- [x] Email format validation and required fields in the dialog form
+- [x] Handle the backend rejecting a deletion (e.g. customer with orders) by showing its message
+- [x] Tests
 
 ## feature/orders
 
