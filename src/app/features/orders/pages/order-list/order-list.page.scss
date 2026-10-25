@@ -1,0 +1,27 @@
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.live-status-bar {
+  margin-bottom: 12px;
+}
+
+.filter-bar {
+  margin-bottom: 16px;
+}
+
+.customer-filter {
+  min-width: 260px;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.orders-table {
+  width: 100%;
+}
