@@ -335,11 +335,11 @@ Depends on `feature/core-architecture`.
 
 ### Tasks
 
-- `CategoryFields` fragment, `.graphql` documents, `categories.service.ts`, routes, list page, create/edit dialog
-- Deleting a category that still has products returns `BAD_REQUEST`: show the backend message and keep the row
-- Cache update after create/update/delete so the list is correct on return
-- `Category` options are reused by the products feature (category select and filter): expose a small `CategoryOptionsService` or a query reused there rather than duplicating it
-- Tests: list states, form validation, delete rejection path
+- [x] `CategoryFields` fragment, `.graphql` documents, `categories.service.ts`, routes, list page, create/edit dialog
+- [x] Deleting a category that still has products returns `BAD_REQUEST`: show the backend message and keep the row
+- [x] Cache update after create/update/delete so the list is correct on return
+- [x] `Category` options are reused by the products feature (category select and filter): expose a small `CategoryOptionsService` or a query reused there rather than duplicating it
+- [x] Tests: list states, form validation, delete rejection path
 
 ## feature/products
 
@@ -354,10 +354,10 @@ Depends on `feature/categories`.
 
 ### Tasks
 
-- `ProductFields` fragment including `category { ...CategoryFields }`: the list must be **one** request, never one request per product row
-- Category filter: changing it resets to the first page and re-queries with `categoryId`
-- `unitPrice` input: numeric, greater than 0 (UX validation), displayed with the currency formatter
-- Tests: filter behavior, one-request list, form validation
+- [x] `ProductFields` fragment including `category { ...CategoryFields }`: the list must be **one** request, never one request per product row
+- [x] Category filter: changing it resets to the first page and re-queries with `categoryId`
+- [x] `unitPrice` input: numeric, greater than 0 (UX validation), displayed with the currency formatter
+- [x] Tests: filter behavior, one-request list, form validation
 
 ## feature/customers
 
@@ -372,10 +372,10 @@ Depends on `feature/core-architecture`.
 
 ### Tasks
 
-- `CustomerFields` fragment, documents, `customers.service.ts`, routes, pages
-- Email format validation and required fields in the dialog form
-- Handle the backend rejecting a deletion (e.g. customer with orders) by showing its message
-- Tests
+- [x] `CustomerFields` fragment, documents, `customers.service.ts`, routes, pages
+- [x] Email format validation and required fields in the dialog form
+- [x] Handle the backend rejecting a deletion (e.g. customer with orders) by showing its message
+- [x] Tests
 
 ## feature/orders
 
@@ -390,12 +390,12 @@ Depends on `feature/products` and `feature/customers`.
 
 ### Tasks
 
-- `OrderFields` fragment including `customer { ...CustomerFields }` and `product { ...ProductFields }` (which includes its category): lists are one request
-- The order dialog shows a **preview** of the total (`quantity * unitPrice`) clearly labelled as an estimate; after creation, display the server's `total`
-- Subscribe to `orderCreated` while the orders page is open; on each event, add the new order to the cached list (or refetch the first page) so it appears without reload; show a snackbar "New order #<id>"; unsubscribe on destroy
-- The order created by the current user also arrives through the subscription: **do not insert it twice** (deduplicate by `id`)
-- Handle the WebSocket lifecycle: reconnect with backoff after a drop, and surface a discreet "live updates unavailable" indicator when disconnected
-- Tests: dedupe on create + subscription event, list updated on event, unsubscribe on destroy, preview vs server total
+- [x] `OrderFields` fragment including `customer { ...CustomerFields }` and `product { ...ProductFields }` (which includes its category): lists are one request
+- [x] The order dialog shows a **preview** of the total (`quantity * unitPrice`) clearly labelled as an estimate; after creation, display the server's `total`
+- [x] Subscribe to `orderCreated` while the orders page is open; on each event, add the new order to the cached list (or refetch the first page) so it appears without reload; show a snackbar "New order #<id>"; unsubscribe on destroy
+- [x] The order created by the current user also arrives through the subscription: **do not insert it twice** (deduplicate by `id`)
+- [x] Handle the WebSocket lifecycle: reconnect with backoff after a drop, and surface a discreet "live updates unavailable" indicator when disconnected
+- [x] Tests: dedupe on create + subscription event, list updated on event, unsubscribe on destroy, preview vs server total
 
 ## Order of work
 
