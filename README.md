@@ -390,12 +390,12 @@ Depends on `feature/products` and `feature/customers`.
 
 ### Tasks
 
-- `OrderFields` fragment including `customer { ...CustomerFields }` and `product { ...ProductFields }` (which includes its category): lists are one request
-- The order dialog shows a **preview** of the total (`quantity * unitPrice`) clearly labelled as an estimate; after creation, display the server's `total`
-- Subscribe to `orderCreated` while the orders page is open; on each event, add the new order to the cached list (or refetch the first page) so it appears without reload; show a snackbar "New order #<id>"; unsubscribe on destroy
-- The order created by the current user also arrives through the subscription: **do not insert it twice** (deduplicate by `id`)
-- Handle the WebSocket lifecycle: reconnect with backoff after a drop, and surface a discreet "live updates unavailable" indicator when disconnected
-- Tests: dedupe on create + subscription event, list updated on event, unsubscribe on destroy, preview vs server total
+- [x] `OrderFields` fragment including `customer { ...CustomerFields }` and `product { ...ProductFields }` (which includes its category): lists are one request
+- [x] The order dialog shows a **preview** of the total (`quantity * unitPrice`) clearly labelled as an estimate; after creation, display the server's `total`
+- [x] Subscribe to `orderCreated` while the orders page is open; on each event, add the new order to the cached list (or refetch the first page) so it appears without reload; show a snackbar "New order #<id>"; unsubscribe on destroy
+- [x] The order created by the current user also arrives through the subscription: **do not insert it twice** (deduplicate by `id`)
+- [x] Handle the WebSocket lifecycle: reconnect with backoff after a drop, and surface a discreet "live updates unavailable" indicator when disconnected
+- [x] Tests: dedupe on create + subscription event, list updated on event, unsubscribe on destroy, preview vs server total
 
 ## Order of work
 
