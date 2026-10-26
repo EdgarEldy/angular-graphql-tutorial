@@ -1,26 +1,49 @@
-<mat-toolbar color="primary">
-  <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle navigation">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <span>Angular GraphQL Tutorial</span>
-</mat-toolbar>
+<!-- Fixed sidebar + sticky toolbar layout replacing mat-sidenav-container.
+     The sidebar is always visible on desktop; a future responsive pass
+     can add a hamburger toggle for mobile. -->
+<div class="app-shell">
 
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav [opened]="sidenavOpen()" mode="side" class="sidenav">
-    <mat-nav-list>
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="brand-icon">
+        <mat-icon>hub</mat-icon>
+      </div>
+      <span class="brand-name">GraphQL Tutorial</span>
+    </div>
+
+    <nav class="sb-nav">
+      <span class="sec-label">Menu</span>
       @for (item of navItems; track item.route) {
-        <a mat-list-item
+        <a class="nav-item"
            [routerLink]="item.route"
-           routerLinkActive="active-link"
+           routerLinkActive="active"
            [routerLinkActiveOptions]="{ exact: false }">
-          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-          <span matListItemTitle>{{ item.label }}</span>
+          <mat-icon>{{ item.icon }}</mat-icon>
+          {{ item.label }}
         </a>
       }
-    </mat-nav-list>
-  </mat-sidenav>
+    </nav>
+  </aside>
 
-  <mat-sidenav-content class="content">
-    <router-outlet />
-  </mat-sidenav-content>
-</mat-sidenav-container>
+  <!-- ── Main area ─────────────────────────────────────────────── -->
+  <div class="app-main">
+    <header class="toolbar">
+      <span class="tb-title">GraphQL Tutorial</span>
+      <div class="tb-actions">
+        <!-- Theme toggle: sets data-theme on <html> so all CSS token
+             blocks (prefers-color-scheme and [data-theme]) stay in sync. -->
+        <button class="theme-btn"
+                (click)="toggleTheme()"
+                [title]="darkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+          <mat-icon>{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+
+</div>
