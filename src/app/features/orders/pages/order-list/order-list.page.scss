@@ -1,8 +1,4 @@
-.page-container {
-  padding: 24px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+// .page-container padding comes from the global utility class in styles.scss
 
 .live-status-bar {
   margin-bottom: 12px;
@@ -17,11 +13,41 @@
 }
 
 .table-container {
-  overflow-x: auto;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-card);
+  overflow: hidden;
 
-.orders-table {
-  width: 100%;
+  ::ng-deep {
+    .mat-mdc-table {
+      background: var(--surface);
+      width: 100%;
+    }
+
+    .mat-mdc-header-cell {
+      background: var(--bg);
+      color: var(--txt-2);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-bottom-color: var(--border);
+    }
+
+    .mat-mdc-cell {
+      color: var(--txt-1);
+      border-bottom-color: var(--border);
+      font-size: 0.875rem;
+    }
+
+    .mat-mdc-row:hover .mat-mdc-cell {
+      background: var(--row-hover);
+    }
+
+    .mat-mdc-paginator {
+      background: var(--surface);
+      color: var(--txt-2);
+      border-top: 1px solid var(--border);
+    }
+  }
 }
