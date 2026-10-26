@@ -3,14 +3,61 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 64px 16px;
+  padding: 80px 28px;
   text-align: center;
+  min-height: 60vh;
+}
+
+.not-found-icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
 }
 
 .not-found-icon {
-  font-size: 96px;
-  width: 96px;
-  height: 96px;
-  color: var(--mat-sys-outline);
-  margin-bottom: 16px;
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: var(--accent);
+}
+
+.not-found-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--txt-1);
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.not-found-msg {
+  font-size: 14px;
+  color: var(--txt-2);
+  margin: 0 0 28px;
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 20px;
+  height: 40px;
+  border-radius: var(--r);
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  text-decoration: none;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--accent-h);
+  }
 }

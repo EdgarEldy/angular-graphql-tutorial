@@ -1,12 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../auth/auth.service';
 
 /**
@@ -21,35 +15,23 @@ interface NavItem {
 /**
  * Application shell (persistent layout).
  *
- * Renders the top toolbar, side navigation, and the `<router-outlet>` for
- * page content. The shell is the parent route component in app.routes.ts and
- * is always visible after the user has authenticated.
+ * Renders the sidebar navigation, the sticky toolbar, and the
+ * router-outlet for page content. The shell is the parent route
+ * component and is always visible after the user has authenticated.
  *
- * Admin navigation items (Users, Roles, Permissions) are shown conditionally
- * based on `AuthService.isAdmin()`, a computed signal derived from the current
- * user's roles. This is a display-only guard -- route access is also protected
- * by adminGuard in app.routes.ts.
+ * Admin navigation items (Users, Roles, Permissions) are shown
+ * conditionally based on AuthService.isAdmin(), a computed signal
+ * derived from the current user's roles. This is a display-only
+ * guard -- route access is also protected by adminGuard.
  *
- * The logout button calls `AuthService.logout()`, which invalidates the token
- * server-side, clears local state, and then navigates to `/login`. Navigation
- * is handled here (not in the service) because services must not contain
+ * The logout button calls AuthService.logout(); navigation to /login
+ * is done here (not in the service) because services must not contain
  * UI or navigation logic.
  */
 @Component({
   selector: 'app-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    MatToolbarModule,
-    MatSidenavModule,
-    MatListModule,
-    MatIconModule,
-    MatButtonModule,
-    MatTooltipModule,
-    MatDividerModule,
-  ],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
@@ -58,11 +40,13 @@ export class Shell {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
-  readonly sidenavOpen = signal(true);
+  /** Whether dark mode is active; toggled by the toolbar button. */
+  readonly darkMode = signal(false);
 
   /** Exposes isAdmin as a signal for the template @if block. */
   readonly isAdmin = this.authService.isAdmin;
 
+  /** Navigation items rendered in the sidebar main section. */
   readonly navItems: NavItem[] = [
     { label: 'Categories', icon: 'category', route: '/categories' },
     { label: 'Products', icon: 'inventory_2', route: '/products' },
@@ -78,23 +62,27 @@ export class Shell {
   ];
 
   /**
-   * Toggles the sidenav between open and closed states.
+   * Toggles between light and dark themes.
    *
-   * Uses signal.update() to derive the next state from the current value without reading
-   * the signal outside the reactive context -- this is the idiomatic Signals pattern for
-   * a boolean toggle (equivalent to setState(prev => !prev) in React).
+   * Sets data-theme on the root element so that :root[data-theme="dark"]
+   * overrides the prefers-color-scheme media query. Once the user picks
+   * a theme explicitly it stays until toggled again, regardless of OS.
+   *
+   * @returns void
    */
-  toggleSidenav(): void {
-    this.sidenavOpen.update((open) => !open);
+  toggleTheme(): void {
+    this.darkMode.update((v) => !v);
+    document.documentElement.dataset['theme'] = this.darkMode() ? 'dark' : 'light';
   }
 
   /**
    * Signs the current user out.
    *
-   * Calls AuthService.logout() which invalidates the token server-side and
-   * clears local state. Navigation to /login is done here in the component
-   * because service code must not trigger navigation -- that would couple the
-   * service to the router and make it harder to test.
+   * Calls AuthService.logout() which invalidates the token server-side
+   * and clears local state. Navigation to /login is done here in the
+   * component because service code must not trigger navigation.
+   *
+   * @returns void
    */
   logout(): void {
     this.authService.logout().subscribe({

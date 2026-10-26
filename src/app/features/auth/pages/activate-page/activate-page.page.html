@@ -1,30 +1,32 @@
-<div class="auth-page">
-  <mat-card class="auth-card">
-    <mat-card-header>
-      <mat-card-title>Account Activation</mat-card-title>
-    </mat-card-header>
+<div class="auth-wrap">
+  <div class="auth-panel">
+    <div class="auth-brand">
+      <div class="brand-icon">
+        <mat-icon>hub</mat-icon>
+      </div>
+      <h1 class="auth-title">Account Activation</h1>
+      <p class="auth-sub">GraphQL Tutorial</p>
+    </div>
 
-    <mat-card-content>
-      @switch (state()) {
-        @case ('loading') {
-          <div class="activation-status">
-            <mat-spinner diameter="40" />
-            <p>Activating your account...</p>
-          </div>
-        }
-        @case ('success') {
-          <div class="activation-status success" role="status">
-            <p>Your account has been activated. You can now sign in.</p>
-            <a mat-flat-button color="primary" routerLink="/login">Go to login</a>
-          </div>
-        }
-        @case ('error') {
-          <div class="activation-status error" role="alert">
-            <p>{{ errorMessage() }}</p>
-            <a mat-button routerLink="/login">Back to login</a>
-          </div>
-        }
+    @switch (state()) {
+      @case ('loading') {
+        <div class="activation-status">
+          <mat-spinner diameter="40" />
+          <p class="status-text">Activating your account...</p>
+        </div>
       }
-    </mat-card-content>
-  </mat-card>
+      @case ('success') {
+        <div class="activation-status success" role="status">
+          <p class="status-text">Your account has been activated. You can now sign in.</p>
+          <a mat-flat-button color="primary" routerLink="/login" class="full-width">Go to login</a>
+        </div>
+      }
+      @case ('error') {
+        <div class="activation-status error" role="alert">
+          <p class="status-text">{{ errorMessage() }}</p>
+          <a routerLink="/login" class="back-link">Back to login</a>
+        </div>
+      }
+    }
+  </div>
 </div>
