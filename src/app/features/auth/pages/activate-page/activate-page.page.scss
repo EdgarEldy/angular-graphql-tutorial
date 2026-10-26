@@ -1,9 +1,5 @@
-// Layout classes (.auth-screen, .auth-panel, .auth-form-wrap, .auth-card,
-// .auth-card-title) come from the global styles.scss.
-
-.full-width {
-  width: 100%;
-}
+// All layout and button styles come from the global styles.scss
+// (.auth-screen, .auth-panel, .auth-card, .auth-title, .btn, .btn-primary, .btn-full).
 
 .activation-status {
   display: flex;
@@ -24,18 +20,7 @@
 
 .status-text {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: 15px;
   line-height: 1.5;
   color: var(--txt-2);
-}
-
-.back-link {
-  font-size: 0.875rem;
-  color: var(--accent);
-  text-decoration: none;
-  font-weight: 500;
-
-  &:hover {
-    text-decoration: underline;
-  }
 }

@@ -1,6 +1,8 @@
 <div class="auth-screen">
+
+  <!-- Left dark panel: brand + tagline + quote -->
   <div class="auth-panel">
-    <div class="auth-brand-row">
+    <div class="auth-brand">
       <div class="auth-brand-icon">
         <mat-icon>hub</mat-icon>
       </div>
@@ -12,52 +14,76 @@
     <p class="auth-quote">"The best API contract is one the compiler enforces at build time."</p>
   </div>
 
+  <!-- Right area: form card -->
   <div class="auth-form-wrap">
     <div class="auth-card">
-      <h1 class="auth-card-title">Welcome back</h1>
-      <p class="auth-card-sub">Sign in to your account to continue.</p>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-sub">Sign in to your account to continue.</p>
 
-      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="auth-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" autocomplete="email" />
-          @if (emailControl.hasError('required')) {
-            <mat-error>Email is required</mat-error>
-          } @else if (emailControl.hasError('email')) {
-            <mat-error>Please enter a valid email address</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
-          <input matInput type="password" formControlName="password" autocomplete="current-password" />
-          @if (passwordControl.hasError('required')) {
-            <mat-error>Password is required</mat-error>
-          }
-        </mat-form-field>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
 
         @if (errorMessage()) {
-          <p class="form-error" role="alert">{{ errorMessage() }}</p>
+          <!-- .form-error class is queried by the login-page spec -->
+          <div class="form-err-banner form-error" role="alert">
+            <mat-icon>error_outline</mat-icon>
+            {{ errorMessage() }}
+          </div>
         }
 
+        <div class="auth-fields">
+
+          <div class="form-f">
+            <label class="form-lbl" for="login-email">Email <span>*</span></label>
+            <input
+              id="login-email"
+              class="form-inp"
+              [class.err]="emailControl.invalid && emailControl.touched"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              placeholder="you@example.com" />
+            @if (emailControl.touched && emailControl.hasError('required')) {
+              <span class="form-err">Email is required</span>
+            } @else if (emailControl.touched && emailControl.hasError('email')) {
+              <span class="form-err">Please enter a valid email address</span>
+            }
+          </div>
+
+          <div class="form-f">
+            <label class="form-lbl" for="login-password">Password <span>*</span></label>
+            <input
+              id="login-password"
+              class="form-inp"
+              [class.err]="passwordControl.invalid && passwordControl.touched"
+              type="password"
+              formControlName="password"
+              autocomplete="current-password"
+              placeholder="••••••••" />
+            @if (passwordControl.touched && passwordControl.hasError('required')) {
+              <span class="form-err">Password is required</span>
+            }
+          </div>
+
+        </div>
+
         <button
-          mat-flat-button
-          color="primary"
           type="submit"
-          class="full-width submit-btn"
+          class="btn btn-primary btn-full"
           [disabled]="form.invalid || loading()">
           @if (loading()) {
-            <mat-spinner diameter="20" />
+            <mat-spinner diameter="18" />
           } @else {
             Sign in
           }
         </button>
+
       </form>
 
-      <div class="auth-links">
-        <a routerLink="/register">Create account</a>
-        <a routerLink="/forgot-password">Forgot password?</a>
-      </div>
+      <div class="auth-divider">or</div>
+
+      <p class="auth-link">Don't have an account? <a routerLink="/register">Create account</a></p>
+      <p class="auth-link" style="margin-top: 8px"><a routerLink="/forgot-password">Forgot password?</a></p>
     </div>
   </div>
+
 </div>
