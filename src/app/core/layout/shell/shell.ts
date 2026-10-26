@@ -19,12 +19,13 @@ export class Shell {
   /**
    * Whether the application is currently in dark mode.
    *
-   * Stored as a signal so the template can reactively swap the
-   * toolbar icon between 'dark_mode' and 'light_mode' without an
-   * explicit change-detection trigger. The actual theme is applied by
-   * setting data-theme on the root element; see toggleTheme().
+   * Initialised from the OS preference via matchMedia so the toolbar
+   * icon already reflects the active theme on first render, before the
+   * user has toggled anything. The signal is then kept in sync by
+   * toggleTheme(). Using window.matchMedia is safe here because the
+   * Shell only runs in a browser context (no SSR in this project).
    */
-  readonly darkMode = signal(false);
+  readonly darkMode = signal(window.matchMedia('(prefers-color-scheme: dark)').matches);
 
   /** Navigation items rendered in the sidebar main section. */
   readonly navItems: NavItem[] = [
