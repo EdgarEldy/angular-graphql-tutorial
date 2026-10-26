@@ -1,16 +1,185 @@
-.sidenav-container {
-  height: calc(100vh - 64px);
+// ── App shell layout ──────────────────────────────────────────
+// The shell uses a two-column flex layout: a fixed-width sidebar on
+// the left and a flex-1 main area on the right. The main area is a
+// column that stacks the sticky toolbar above the scrollable content.
+
+.app-shell {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.sidenav {
-  width: 220px;
+// ── Sidebar ────────────────────────────────────────────────────
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--sb-bg);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--sb-div);
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+  }
+}
+
+.brand-name {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.sb-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 10px;
+}
+
+.sec-label {
+  display: block;
+  padding: 12px 10px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--r);
+  cursor: pointer;
+  color: var(--sb-txt);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font);
+  border-left: 3px solid transparent;
+  margin-bottom: 2px;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+
+  mat-icon {
+    font-size: 19px;
+    width: 19px;
+    height: 19px;
+    color: inherit;
+  }
+
+  &:hover {
+    background: var(--sb-hover);
+    color: #d1d5db;
+  }
+
+  &.active {
+    background: var(--sb-active-bg);
+    color: var(--sb-txt-a);
+    border-left-color: var(--sb-active-b);
+  }
+}
+
+.sb-div {
+  height: 1px;
+  background: var(--sb-div);
+  margin: 10px 0;
+}
+
+.sb-footer {
+  padding: 10px 10px 14px;
+  border-top: 1px solid var(--sb-div);
+}
+
+// ── Main area ──────────────────────────────────────────────────
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+// ── Toolbar ────────────────────────────────────────────────────
+.toolbar {
+  height: var(--toolbar-h);
+  flex-shrink: 0;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  position: relative;
+  z-index: 10;
+}
+
+.tb-title {
+  font-size: 16px;
+  font-weight: 600;
+  flex: 1;
+  color: var(--txt-1);
+}
+
+.tb-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--txt-2);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: inherit;
+  }
+
+  &:hover {
+    background: var(--row-hover);
+  }
+}
+
+// ── Content ────────────────────────────────────────────────────
 .content {
-  padding: 16px;
-}
-
-.active-link {
-  background-color: var(--mat-sys-primary-container);
-  color: var(--mat-sys-on-primary-container);
+  flex: 1;
+  overflow-y: auto;
 }
