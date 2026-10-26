@@ -1,53 +1,94 @@
-<div class="auth-wrap">
+<div class="auth-screen">
+
+  <!-- Left dark panel: brand + tagline + quote -->
   <div class="auth-panel">
     <div class="auth-brand">
-      <div class="brand-icon">
+      <div class="auth-brand-icon">
         <mat-icon>hub</mat-icon>
       </div>
-      <h1 class="auth-title">Sign in</h1>
-      <p class="auth-sub">GraphQL Tutorial</p>
+      <span class="auth-brand-name">GraphQL Tutorial</span>
     </div>
+    <p class="auth-tagline">
+      Manage <strong>products, customers and orders</strong> through a fully typed GraphQL API.
+    </p>
+    <p class="auth-quote">"The best API contract is one the compiler enforces at build time."</p>
+  </div>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="auth-form">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Email</mat-label>
-        <input matInput type="email" formControlName="email" autocomplete="email" />
-        @if (emailControl.hasError('required')) {
-          <mat-error>Email is required</mat-error>
-        } @else if (emailControl.hasError('email')) {
-          <mat-error>Please enter a valid email address</mat-error>
+  <!-- Right area: form card -->
+  <div class="auth-form-wrap">
+    <div class="auth-card">
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-sub">Sign in to your account to continue.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+        @if (errorMessage()) {
+          <!-- .form-error class is queried by the login-page spec -->
+          <div class="form-err-banner form-error" role="alert">
+            <mat-icon>error_outline</mat-icon>
+            {{ errorMessage() }}
+          </div>
         }
-      </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName="password" autocomplete="current-password" />
-        @if (passwordControl.hasError('required')) {
-          <mat-error>Password is required</mat-error>
-        }
-      </mat-form-field>
+        <div class="auth-fields">
 
-      @if (errorMessage()) {
-        <p class="form-error" role="alert">{{ errorMessage() }}</p>
-      }
+          <div class="form-f">
+            <label class="form-lbl" for="login-email">Email <span>*</span></label>
+            <input
+              id="login-email"
+              class="form-inp"
+              [class.err]="emailControl.invalid && emailControl.touched"
+              type="email"
+              formControlName="email"
+              autocomplete="email"
+              placeholder="you@example.com" />
+            @if (emailControl.touched && emailControl.hasError('required')) {
+              <span class="form-err">Email is required</span>
+            } @else if (emailControl.touched && emailControl.hasError('email')) {
+              <span class="form-err">Please enter a valid email address</span>
+            }
+          </div>
 
-      <button
-        mat-flat-button
-        color="primary"
-        type="submit"
-        class="full-width submit-btn"
-        [disabled]="form.invalid || loading()">
-        @if (loading()) {
-          <mat-spinner diameter="20" />
-        } @else {
-          Sign in
-        }
-      </button>
-    </form>
+          <div class="form-f">
+            <label class="form-lbl" for="login-password">Password <span>*</span></label>
+            <div class="form-inp-wrap">
+              <input
+                id="login-password"
+                class="form-inp"
+                [class.err]="passwordControl.invalid && passwordControl.touched"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                autocomplete="current-password"
+                placeholder="••••••••" />
+              <button type="button" class="form-inp-toggle" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+            </div>
+            @if (passwordControl.touched && passwordControl.hasError('required')) {
+              <span class="form-err">Password is required</span>
+            }
+          </div>
 
-    <div class="auth-links">
-      <a routerLink="/register">Create account</a>
-      <a routerLink="/forgot-password">Forgot password?</a>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-full"
+          [disabled]="form.invalid || loading()">
+          @if (loading()) {
+            <mat-spinner diameter="18" />
+          } @else {
+            Sign in
+          }
+        </button>
+
+      </form>
+
+      <div class="auth-divider">or</div>
+
+      <p class="auth-link">Don't have an account? <a routerLink="/register">Create account</a></p>
+      <p class="auth-link" style="margin-top: 8px"><a routerLink="/forgot-password">Forgot password?</a></p>
     </div>
   </div>
+
 </div>

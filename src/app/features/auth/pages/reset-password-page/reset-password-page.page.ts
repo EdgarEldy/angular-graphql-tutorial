@@ -9,10 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthFeature } from '../../data/auth-feature';
 import { mapError } from '../../../../core/graphql/error-mapper';
@@ -52,15 +49,7 @@ const passwordsMatchValidator: ValidatorFn = (group: AbstractControl): Validatio
 @Component({
   selector: 'app-reset-password-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatInputModule,
-    MatProgressSpinnerModule,
-  ],
+  imports: [ReactiveFormsModule, RouterLink, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './reset-password-page.page.html',
   styleUrl: './reset-password-page.page.scss',
 })
@@ -72,6 +61,11 @@ export class ResetPasswordPagePage {
   readonly loading = signal(false);
   readonly success = signal(false);
   readonly errorMessage = signal<string | null>(null);
+
+  /** Controls visibility of the new-password field. */
+  readonly showNewPassword = signal(false);
+  /** Controls visibility of the confirm-password field. */
+  readonly showConfirmPassword = signal(false);
 
   /**
    * Typed reactive form with a group-level validator to enforce password match.

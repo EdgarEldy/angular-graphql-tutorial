@@ -1,81 +1,133 @@
-<div class="auth-wrap">
+<div class="auth-screen">
+
+  <!-- Left dark panel: brand + tagline + quote -->
   <div class="auth-panel">
     <div class="auth-brand">
-      <div class="brand-icon">
+      <div class="auth-brand-icon">
         <mat-icon>hub</mat-icon>
       </div>
-      <h1 class="auth-title">Create account</h1>
-      <p class="auth-sub">GraphQL Tutorial</p>
+      <span class="auth-brand-name">GraphQL Tutorial</span>
     </div>
-
-    @if (registered()) {
-      <div class="success-message" role="status">
-        <p>
-          Your account has been created. Please check your email for an activation link
-          before signing in.
-        </p>
-        <a mat-flat-button color="primary" routerLink="/login">Go to login</a>
-      </div>
-    } @else {
-      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="auth-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>First name</mat-label>
-          <input matInput formControlName="firstName" autocomplete="given-name" />
-          @if (firstNameControl.hasError('required')) {
-            <mat-error>First name is required</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Last name</mat-label>
-          <input matInput formControlName="lastName" autocomplete="family-name" />
-          @if (lastNameControl.hasError('required')) {
-            <mat-error>Last name is required</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" autocomplete="email" />
-          @if (emailControl.hasError('required')) {
-            <mat-error>Email is required</mat-error>
-          } @else if (emailControl.hasError('email')) {
-            <mat-error>Please enter a valid email address</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Password</mat-label>
-          <input matInput type="password" formControlName="password" autocomplete="new-password" />
-          @if (passwordControl.hasError('required')) {
-            <mat-error>Password is required</mat-error>
-          } @else if (passwordControl.hasError('minlength')) {
-            <mat-error>Password must be at least 8 characters</mat-error>
-          }
-          <mat-hint>Minimum 8 characters (the server may require more)</mat-hint>
-        </mat-form-field>
-
-        @if (errorMessage()) {
-          <p class="form-error" role="alert">{{ errorMessage() }}</p>
-        }
-
-        <button
-          mat-flat-button
-          color="primary"
-          type="submit"
-          class="full-width submit-btn"
-          [disabled]="form.invalid || loading()">
-          @if (loading()) {
-            <mat-spinner diameter="20" />
-          } @else {
-            Create account
-          }
-        </button>
-      </form>
-
-      <div class="auth-links">
-        <a routerLink="/login">Already have an account?</a>
-      </div>
-    }
+    <p class="auth-tagline">
+      Create your account and explore a real <strong>Spring for GraphQL</strong> backend.
+    </p>
+    <p class="auth-quote">"Convention over configuration -- it works because everyone knows where to look."</p>
   </div>
+
+  <!-- Right area: form card -->
+  <div class="auth-form-wrap">
+    <div class="auth-card">
+      <h1 class="auth-title">Create account</h1>
+      <p class="auth-sub">Fill in the form to create your account.</p>
+
+      @if (registered()) {
+        <div class="success-message" role="status">
+          <p>
+            Your account has been created. Please check your email for an activation link
+            before signing in.
+          </p>
+          <a routerLink="/login" class="btn btn-primary btn-full">Go to login</a>
+        </div>
+      } @else {
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+          @if (errorMessage()) {
+            <div class="form-err-banner form-error" role="alert">
+              <mat-icon>error_outline</mat-icon>
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <div class="auth-fields">
+
+            <div class="form-f">
+              <label class="form-lbl" for="reg-firstname">First name <span>*</span></label>
+              <input
+                id="reg-firstname"
+                class="form-inp"
+                [class.err]="firstNameControl.invalid && firstNameControl.touched"
+                type="text"
+                formControlName="firstName"
+                autocomplete="given-name"
+                placeholder="Jane" />
+              @if (firstNameControl.touched && firstNameControl.hasError('required')) {
+                <span class="form-err">First name is required</span>
+              }
+            </div>
+
+            <div class="form-f">
+              <label class="form-lbl" for="reg-lastname">Last name <span>*</span></label>
+              <input
+                id="reg-lastname"
+                class="form-inp"
+                [class.err]="lastNameControl.invalid && lastNameControl.touched"
+                type="text"
+                formControlName="lastName"
+                autocomplete="family-name"
+                placeholder="Doe" />
+              @if (lastNameControl.touched && lastNameControl.hasError('required')) {
+                <span class="form-err">Last name is required</span>
+              }
+            </div>
+
+            <div class="form-f">
+              <label class="form-lbl" for="reg-email">Email <span>*</span></label>
+              <input
+                id="reg-email"
+                class="form-inp"
+                [class.err]="emailControl.invalid && emailControl.touched"
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="you@example.com" />
+              @if (emailControl.touched && emailControl.hasError('required')) {
+                <span class="form-err">Email is required</span>
+              } @else if (emailControl.touched && emailControl.hasError('email')) {
+                <span class="form-err">Please enter a valid email address</span>
+              }
+            </div>
+
+            <div class="form-f">
+              <label class="form-lbl" for="reg-password">Password <span>*</span></label>
+              <div class="form-inp-wrap">
+                <input
+                  id="reg-password"
+                  class="form-inp"
+                  [class.err]="passwordControl.invalid && passwordControl.touched"
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  autocomplete="new-password"
+                  placeholder="••••••••" />
+                <button type="button" class="form-inp-toggle" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
+                  <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+              </div>
+              @if (passwordControl.touched && passwordControl.hasError('required')) {
+                <span class="form-err">Password is required</span>
+              } @else if (passwordControl.touched && passwordControl.hasError('minlength')) {
+                <span class="form-err">Password must be at least 8 characters</span>
+              }
+            </div>
+
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary btn-full"
+            [disabled]="form.invalid || loading()">
+            @if (loading()) {
+              <mat-spinner diameter="18" />
+            } @else {
+              Create account
+            }
+          </button>
+
+        </form>
+
+        <div class="auth-divider">or</div>
+        <p class="auth-link">Already have an account? <a routerLink="/login">Sign in</a></p>
+      }
+    </div>
+  </div>
+
 </div>

@@ -126,3 +126,328 @@ body {
 .page-container {
   padding: 28px;
 }
+
+// ── Auth split-panel layout ────────────────────────────────────
+// Shared across all five auth pages. The left panel stays #111827
+// (sidebar dark) regardless of app theme; the right form-wrap
+// inherits var(--bg) so it responds to dark-mode correctly.
+.auth-screen {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+// Left dark panel: brand + contextual tagline + inspirational quote
+.auth-panel {
+  width: 420px;
+  flex-shrink: 0;
+  background: var(--sb-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+
+  // Hidden on narrow viewports; the form card fills the full screen
+  @media (max-width: 700px) {
+    display: none;
+  }
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+
+  // Override Material's default mat-icon dimensions
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.auth-brand-name {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+// Per-page tagline describing what this auth step unlocks
+.auth-tagline {
+  color: #9ca3af;
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 280px;
+  margin: 0;
+
+  strong {
+    color: #fff;
+  }
+}
+
+// Italic quote anchored to the bottom of the left panel
+.auth-quote {
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.6;
+  font-style: italic;
+  margin: 0;
+}
+
+// Right section: vertically and horizontally centres the auth-card
+.auth-form-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+// Surface card that wraps the form inside auth-form-wrap
+.auth-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-card);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 420px;
+  padding: 36px;
+}
+
+.auth-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+  color: var(--txt-1);
+}
+
+.auth-sub {
+  font-size: 14px;
+  color: var(--txt-2);
+  margin: 0 0 26px;
+  line-height: 1.5;
+}
+
+// Stacked form fields container
+.auth-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+// "or" separator between the submit button and the register link
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  font-size: 12px;
+  color: var(--txt-3);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
+// Navigation link below the card (e.g. "Don't have an account? Register")
+.auth-link {
+  font-size: 13.5px;
+  color: var(--txt-2);
+  text-align: center;
+  margin: 0;
+
+  a {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// ── Shared form primitives (auth pages + dialogs) ──────────────
+// Native inputs and labels styled to match the design token system.
+// Auth pages use these instead of Angular Material mat-form-field so
+// the auth screens stay visually independent from the app's Material theme.
+
+.form-f {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-lbl {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--txt-1);
+
+  span {
+    color: #ef4444;
+    margin-left: 2px;
+  }
+}
+
+.form-inp {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 0 12px;
+  height: 40px;
+  font-size: 14px;
+  color: var(--txt-1);
+  font-family: var(--font);
+  outline: none;
+  width: 100%;
+  // border-box ensures padding is included in the declared width so all
+  // inputs line up regardless of whether they carry extra right padding
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: var(--accent);
+  }
+
+  &.err {
+    border-color: #ef4444;
+  }
+
+  &::placeholder {
+    color: var(--txt-3);
+  }
+}
+
+// Field-level validation error shown below an input
+.form-err {
+  font-size: 11.5px;
+  color: #ef4444;
+}
+
+// Banner-level error shown above the form (e.g., wrong credentials)
+.form-err-banner {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: #dc2626;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+// ── Password-input toggle wrapper ─────────────────────────────
+// Wraps a .form-inp to add a show/hide eye icon button on the right.
+// The input itself gains right padding so text never slides under the button.
+.form-inp-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  // Must be full-width so the input matches the email field width exactly
+  width: 100%;
+
+  .form-inp {
+    // Reserve space for the 32px toggle button
+    padding-right: 40px;
+  }
+}
+
+// Native button inside .form-inp-wrap that toggles password visibility
+.form-inp-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--txt-3);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  transition: color 0.15s;
+
+  &:hover {
+    color: var(--txt-2);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// ── Shared button utilities ────────────────────────────────────
+// Plain <button> elements styled with design tokens.
+// Using native buttons avoids Angular Material's theme-dependent
+// disabled-state opacity that makes buttons invisible in dark mode.
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 38px;
+  border-radius: var(--r);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.15s;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: var(--accent-h);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+// Full-width variant for auth form submit buttons
+.btn-full {
+  width: 100%;
+  height: 42px;
+  font-size: 15px;
+}
