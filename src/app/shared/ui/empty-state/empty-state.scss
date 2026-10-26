@@ -3,19 +3,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 16px;
-  color: var(--mat-sys-on-surface-variant, #6c6c6c);
+  padding: 64px 16px;
+  color: var(--txt-3);
 
   &__icon {
-    font-size: 48px;
-    height: 48px;
-    width: 48px;
+    font-size: 56px;
+    height: 56px;
+    width: 56px;
     margin-bottom: 16px;
-    opacity: 0.5;
+    opacity: 0.6;
   }
 
   &__message {
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.9375rem;
+    color: var(--txt-2);
   }
 }
