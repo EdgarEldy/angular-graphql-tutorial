@@ -145,6 +145,8 @@
   font-weight: 600;
   flex: 1;
   color: var(--txt-1);
+  // As an <a> element the title must look like plain text, not a hyperlink
+  text-decoration: none;
 }
 
 .tb-actions {
