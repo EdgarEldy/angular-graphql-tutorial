@@ -62,6 +62,26 @@
                 [title]="darkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
           <mat-icon>{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
         </button>
+
+        <!-- Profile button: shows user initials, opens a MatMenu with name/email and sign-out -->
+        <button class="profile-btn" [matMenuTriggerFor]="profileMenu">
+          <span class="profile-initials">{{ userInitials() }}</span>
+        </button>
+
+        <!-- MatMenu is rendered in an overlay; it is not part of the toolbar DOM -->
+        <mat-menu #profileMenu="matMenu" class="profile-menu">
+          @if (currentUser(); as user) {
+            <div class="profile-menu-header" mat-menu-item disabled>
+              <p class="profile-menu-name">{{ user.firstName }} {{ user.lastName }}</p>
+              <p class="profile-menu-email">{{ user.email }}</p>
+            </div>
+            <div class="profile-menu-divider"></div>
+          }
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            Sign out
+          </button>
+        </mat-menu>
       </div>
     </header>
 
