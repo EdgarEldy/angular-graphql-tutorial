@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthFeature } from '../../data/auth-feature';
@@ -25,7 +24,7 @@ type ActivationState = 'loading' | 'success' | 'error';
 @Component({
   selector: 'app-activate-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [RouterLink, MatIconModule, MatProgressSpinnerModule],
   templateUrl: './activate-page.page.html',
   styleUrl: './activate-page.page.scss',
 })
