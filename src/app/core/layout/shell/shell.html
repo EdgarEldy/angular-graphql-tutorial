@@ -32,7 +32,7 @@
           <a class="nav-item"
              [routerLink]="item.route"
              routerLinkActive="active"
-             [routerLinkActiveOptions]="{ exact: false }">
+             [routerLinkActiveOptions]="{ exact: item.exactMatch ?? false }">
             <mat-icon>{{ item.icon }}</mat-icon>
             {{ item.label }}
           </a>
