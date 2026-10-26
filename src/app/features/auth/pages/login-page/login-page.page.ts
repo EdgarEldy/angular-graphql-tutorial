@@ -53,6 +53,9 @@ export class LoginPagePage {
    */
   readonly loading = signal(false);
 
+  /** Controls whether the password field renders as text (true) or password (false). */
+  readonly showPassword = signal(false);
+
   /**
    * Holds the backend error message when login fails (e.g. bad credentials).
    * Displayed inline below the form so the user can correct and resubmit.
