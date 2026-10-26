@@ -1,16 +1,16 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+
+// Import Inter font for the custom sidebar/toolbar design system.
+// Material components continue to use Roboto (set in mat.theme below).
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 html {
   height: 100%;
+  // Use a violet palette so Material buttons / inputs align with --accent #6366f1.
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
+        primary: mat.$violet-palette,
         tertiary: mat.$blue-palette,
       ),
       typography: Roboto,
@@ -19,21 +19,110 @@ html {
   );
 }
 
+// ── Design tokens ─────────────────────────────────────────────
+// All custom components (sidebar, toolbar, page-header, tables,
+// dialogs) consume these tokens via var(). Material components
+// are styled separately with ::ng-deep where needed.
+:root {
+  --sidebar-w: 248px;
+  --toolbar-h: 64px;
+
+  // Sidebar (always dark regardless of theme)
+  --sb-bg: #111827;
+  --sb-txt: #9ca3af;
+  --sb-txt-a: #ffffff;
+  --sb-active-bg: rgba(99, 102, 241, 0.18);
+  --sb-active-b: #6366f1;
+  --sb-hover: rgba(255, 255, 255, 0.05);
+  --sb-div: rgba(255, 255, 255, 0.08);
+
+  // Accent (indigo)
+  --accent: #6366f1;
+  --accent-h: #4f46e5;
+  --accent-fg: #ffffff;
+
+  // Surfaces -- light values (default)
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --toolbar-bg: #ffffff;
+
+  // Text
+  --txt-1: #0f172a;
+  --txt-2: #64748b;
+  --txt-3: #94a3b8;
+
+  // Borders & hover
+  --border: #e2e8f0;
+  --row-hover: #f8fafc;
+
+  // Tags / chips
+  --tag-bg: #eef2ff;
+  --tag-txt: #4338ca;
+
+  // Shadows
+  --sh-card: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.06);
+  --sh-drop: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+  --sh-dialog: 0 24px 64px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  // Shape
+  --r: 8px;
+  --r-lg: 12px;
+
+  // Typography
+  --font: 'Inter', system-ui, sans-serif;
+}
+
+// Dark mode via OS preference (does not override explicit [data-theme] choice)
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --toolbar-bg: #161b22;
+    --txt-1: #f0f6fc;
+    --txt-2: #8b949e;
+    --txt-3: #6e7681;
+    --border: #30363d;
+    --row-hover: #1c2128;
+    --tag-bg: rgba(99, 102, 241, 0.18);
+    --tag-txt: #a5b4fc;
+    --sh-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.3);
+    --sh-drop: 0 8px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+    --sh-dialog: 0 24px 64px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+}
+
+// Dark mode via explicit [data-theme="dark"] attribute (toggle button)
+:root[data-theme='dark'] {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --toolbar-bg: #161b22;
+  --txt-1: #f0f6fc;
+  --txt-2: #8b949e;
+  --txt-3: #6e7681;
+  --border: #30363d;
+  --row-hover: #1c2128;
+  --tag-bg: rgba(99, 102, 241, 0.18);
+  --tag-txt: #a5b4fc;
+  --sh-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --sh-drop: 0 8px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --sh-dialog: 0 24px 64px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
   color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
+  background-color: var(--bg);
+  color: var(--txt-1);
+  font-family: var(--font);
+  font-size: 14px;
   margin: 0;
   height: 100%;
 }
-/* You can add global styles to this file, and also import other style files */
+
+// ── Shared layout utilities ────────────────────────────────────
+// Every feature page wraps its content in .page-container.
+// The design uses 28px padding to match the mockup's content area.
+.page-container {
+  padding: 28px;
+}
