@@ -8,8 +8,8 @@ import {
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthFeature } from '../../data/auth-feature';
@@ -43,8 +43,8 @@ interface RegisterForm {
     ReactiveFormsModule,
     RouterLink,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatProgressSpinnerModule,
   ],

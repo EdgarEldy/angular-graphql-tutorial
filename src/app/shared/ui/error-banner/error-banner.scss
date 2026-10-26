@@ -2,14 +2,16 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 16px;
-  border-radius: 8px;
-  background: var(--mat-sys-error-container, #fce8e6);
-  color: var(--mat-sys-on-error-container, #410002);
-  margin: 16px 0;
+  padding: 16px 20px;
+  border-radius: var(--r);
+  // Explicit hex is used here because no design token exists for the error tint.
+  background: rgba(220, 38, 38, 0.06);
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  margin: 0 0 16px;
 
   &__icon {
-    margin-top: 2px;
+    color: #dc2626;
+    margin-top: 1px;
     flex-shrink: 0;
   }
 
@@ -22,5 +24,6 @@
   &__message {
     margin: 0;
     line-height: 1.5;
+    color: var(--txt-1);
   }
 }

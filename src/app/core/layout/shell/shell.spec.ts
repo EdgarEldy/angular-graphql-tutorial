@@ -42,9 +42,11 @@ describe('Shell', () => {
     expect(component).toBeTruthy();
   });
 
-  it('toggles the sidenav on toggleSidenav()', () => {
-    const initial = component.sidenavOpen();
-    component.toggleSidenav();
-    expect(component.sidenavOpen()).toBe(!initial);
+  it('toggles the dark mode on toggleTheme()', () => {
+    // The redesigned shell uses a custom sidebar; sidenav was replaced by
+    // a darkMode signal that controls the data-theme attribute on <html>.
+    const initial = component.darkMode();
+    component.toggleTheme();
+    expect(component.darkMode()).toBe(!initial);
   });
 });
