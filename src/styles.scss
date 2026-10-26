@@ -134,6 +134,7 @@ body {
 .auth-screen {
   display: flex;
   height: 100vh;
+  width: 100%;
   overflow: hidden;
 }
 
@@ -153,7 +154,7 @@ body {
   }
 }
 
-.auth-brand-row {
+.auth-brand {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -169,7 +170,7 @@ body {
   justify-content: center;
   color: #fff;
 
-  // mat-icon size override needed because Material sets its own dimensions
+  // Override Material's default mat-icon dimensions
   mat-icon {
     font-size: 22px;
     width: 22px;
@@ -189,6 +190,7 @@ body {
   color: #9ca3af;
   font-size: 15px;
   line-height: 1.7;
+  max-width: 280px;
   margin: 0;
 
   strong {
@@ -227,7 +229,7 @@ body {
   padding: 36px;
 }
 
-.auth-card-title {
+.auth-title {
   font-size: 22px;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -235,9 +237,173 @@ body {
   color: var(--txt-1);
 }
 
-.auth-card-sub {
+.auth-sub {
   font-size: 14px;
   color: var(--txt-2);
   margin: 0 0 26px;
   line-height: 1.5;
+}
+
+// Stacked form fields container
+.auth-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+// "or" separator between the submit button and the register link
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  font-size: 12px;
+  color: var(--txt-3);
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
+// Navigation link below the card (e.g. "Don't have an account? Register")
+.auth-link {
+  font-size: 13.5px;
+  color: var(--txt-2);
+  text-align: center;
+  margin: 0;
+
+  a {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// ── Shared form primitives (auth pages + dialogs) ──────────────
+// Native inputs and labels styled to match the design token system.
+// Auth pages use these instead of Angular Material mat-form-field so
+// the auth screens stay visually independent from the app's Material theme.
+
+.form-f {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-lbl {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--txt-1);
+
+  span {
+    color: #ef4444;
+    margin-left: 2px;
+  }
+}
+
+.form-inp {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 0 12px;
+  height: 40px;
+  font-size: 14px;
+  color: var(--txt-1);
+  font-family: var(--font);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+
+  &:focus {
+    border-color: var(--accent);
+  }
+
+  &.err {
+    border-color: #ef4444;
+  }
+
+  &::placeholder {
+    color: var(--txt-3);
+  }
+}
+
+// Field-level validation error shown below an input
+.form-err {
+  font-size: 11.5px;
+  color: #ef4444;
+}
+
+// Banner-level error shown above the form (e.g., wrong credentials)
+.form-err-banner {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--r);
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: #dc2626;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+// ── Shared button utilities ────────────────────────────────────
+// Plain <button> elements styled with design tokens.
+// Using native buttons avoids Angular Material's theme-dependent
+// disabled-state opacity that makes buttons invisible in dark mode.
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 16px;
+  height: 38px;
+  border-radius: var(--r);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.15s;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    background: var(--accent-h);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+}
+
+// Full-width variant for auth form submit buttons
+.btn-full {
+  width: 100%;
+  height: 42px;
+  font-size: 15px;
 }
