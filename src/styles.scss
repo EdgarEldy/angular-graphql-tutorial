@@ -126,3 +126,118 @@ body {
 .page-container {
   padding: 28px;
 }
+
+// ── Auth split-panel layout ────────────────────────────────────
+// Shared across all five auth pages. The left panel stays #111827
+// (sidebar dark) regardless of app theme; the right form-wrap
+// inherits var(--bg) so it responds to dark-mode correctly.
+.auth-screen {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+// Left dark panel: brand + contextual tagline + inspirational quote
+.auth-panel {
+  width: 420px;
+  flex-shrink: 0;
+  background: var(--sb-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+
+  // Hidden on narrow viewports; the form card fills the full screen
+  @media (max-width: 700px) {
+    display: none;
+  }
+}
+
+.auth-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+
+  // mat-icon size override needed because Material sets its own dimensions
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.auth-brand-name {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+// Per-page tagline describing what this auth step unlocks
+.auth-tagline {
+  color: #9ca3af;
+  font-size: 15px;
+  line-height: 1.7;
+  margin: 0;
+
+  strong {
+    color: #fff;
+  }
+}
+
+// Italic quote anchored to the bottom of the left panel
+.auth-quote {
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.6;
+  font-style: italic;
+  margin: 0;
+}
+
+// Right section: vertically and horizontally centres the auth-card
+.auth-form-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+// Surface card that wraps the form inside auth-form-wrap
+.auth-card {
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-card);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 420px;
+  padding: 36px;
+}
+
+.auth-card-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+  color: var(--txt-1);
+}
+
+.auth-card-sub {
+  font-size: 14px;
+  color: var(--txt-2);
+  margin: 0 0 26px;
+  line-height: 1.5;
+}
