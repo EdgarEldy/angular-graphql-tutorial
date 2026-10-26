@@ -1,10 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 
 interface NavItem {
   label: string;
@@ -15,22 +11,22 @@ interface NavItem {
 @Component({
   selector: 'app-shell',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    MatToolbarModule,
-    MatSidenavModule,
-    MatListModule,
-    MatIconModule,
-    MatButtonModule,
-  ],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatIconModule],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
 })
 export class Shell {
-  readonly sidenavOpen = signal(true);
+  /**
+   * Whether the application is currently in dark mode.
+   *
+   * Stored as a signal so the template can reactively swap the
+   * toolbar icon between 'dark_mode' and 'light_mode' without an
+   * explicit change-detection trigger. The actual theme is applied by
+   * setting data-theme on the root element; see toggleTheme().
+   */
+  readonly darkMode = signal(false);
 
+  /** Navigation items rendered in the sidebar main section. */
   readonly navItems: NavItem[] = [
     { label: 'Categories', icon: 'category', route: '/categories' },
     { label: 'Products', icon: 'inventory_2', route: '/products' },
@@ -39,13 +35,17 @@ export class Shell {
   ];
 
   /**
-   * Toggles the sidenav between open and closed states.
+   * Toggles between light and dark themes.
    *
-   * Uses signal.update() to derive the next state from the current value without reading
-   * the signal outside the reactive context -- this is the idiomatic Signals pattern for
-   * a boolean toggle (equivalent to setState(prev => !prev) in React).
+   * Sets data-theme on the root element so that the :root[data-theme="dark"]
+   * CSS block overrides the prefers-color-scheme media query in both
+   * directions. This approach means that once the user explicitly picks a
+   * theme it stays until toggled again, regardless of the OS setting.
+   *
+   * @returns void
    */
-  toggleSidenav(): void {
-    this.sidenavOpen.update((open) => !open);
+  toggleTheme(): void {
+    this.darkMode.update((v) => !v);
+    document.documentElement.dataset['theme'] = this.darkMode() ? 'dark' : 'light';
   }
 }
