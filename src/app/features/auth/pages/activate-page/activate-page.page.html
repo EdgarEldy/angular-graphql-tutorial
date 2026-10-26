@@ -1,32 +1,41 @@
-<div class="auth-wrap">
+<div class="auth-screen">
   <div class="auth-panel">
-    <div class="auth-brand">
-      <div class="brand-icon">
+    <div class="auth-brand-row">
+      <div class="auth-brand-icon">
         <mat-icon>hub</mat-icon>
       </div>
-      <h1 class="auth-title">Account Activation</h1>
-      <p class="auth-sub">GraphQL Tutorial</p>
+      <span class="auth-brand-name">GraphQL Tutorial</span>
     </div>
+    <p class="auth-tagline">
+      Check your email for the <strong>activation link</strong> sent to the address you registered with.
+    </p>
+    <p class="auth-quote">"Security first -- account activation prevents spam and protects your data."</p>
+  </div>
 
-    @switch (state()) {
-      @case ('loading') {
-        <div class="activation-status">
-          <mat-spinner diameter="40" />
-          <p class="status-text">Activating your account...</p>
-        </div>
+  <div class="auth-form-wrap">
+    <div class="auth-card">
+      <h1 class="auth-card-title">Account Activation</h1>
+
+      @switch (state()) {
+        @case ('loading') {
+          <div class="activation-status">
+            <mat-spinner diameter="40" />
+            <p class="status-text">Activating your account...</p>
+          </div>
+        }
+        @case ('success') {
+          <div class="activation-status success" role="status">
+            <p class="status-text">Your account has been activated. You can now sign in.</p>
+            <a mat-flat-button color="primary" routerLink="/login" class="full-width">Go to login</a>
+          </div>
+        }
+        @case ('error') {
+          <div class="activation-status error" role="alert">
+            <p class="status-text">{{ errorMessage() }}</p>
+            <a routerLink="/login" class="back-link">Back to login</a>
+          </div>
+        }
       }
-      @case ('success') {
-        <div class="activation-status success" role="status">
-          <p class="status-text">Your account has been activated. You can now sign in.</p>
-          <a mat-flat-button color="primary" routerLink="/login" class="full-width">Go to login</a>
-        </div>
-      }
-      @case ('error') {
-        <div class="activation-status error" role="alert">
-          <p class="status-text">{{ errorMessage() }}</p>
-          <a routerLink="/login" class="back-link">Back to login</a>
-        </div>
-      }
-    }
+    </div>
   </div>
 </div>
