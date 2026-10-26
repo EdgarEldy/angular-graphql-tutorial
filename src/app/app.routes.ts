@@ -8,8 +8,11 @@ export const routes: Routes = [
     component: Shell,
     children: [
       {
+        // Default route renders the home page instead of redirecting to a feature,
+        // so the toolbar home link (/) always lands on a stable, intentional view.
         path: '',
-        redirectTo: 'categories',
+        loadComponent: () =>
+          import('./features/home/pages/home/home.page').then((m) => m.HomePage),
         pathMatch: 'full',
       },
       {
