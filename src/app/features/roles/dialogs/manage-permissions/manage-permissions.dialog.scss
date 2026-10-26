@@ -3,16 +3,19 @@
 }
 
 .section-title {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   margin: 0 0 8px;
-  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  color: var(--txt-2);
 }
 
 .empty-hint {
   font-size: 0.875rem;
-  color: var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6));
+  color: var(--txt-3);
   margin: 0;
+  font-style: italic;
 }
 
 .add-row {
