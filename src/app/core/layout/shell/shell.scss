@@ -145,6 +145,8 @@
   font-weight: 600;
   flex: 1;
   color: var(--txt-1);
+  // As an <a> element the title must look like plain text, not a hyperlink
+  text-decoration: none;
 }
 
 .tb-actions {
@@ -182,6 +184,65 @@
 .content {
   flex: 1;
   overflow-y: auto;
+}
+
+// ── Toolbar profile button ─────────────────────────────────────
+// Avatar-style button showing the user's initials; triggers the profile MatMenu.
+.profile-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.profile-initials {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  font-family: var(--font);
+  user-select: none;
+}
+
+// Header block inside the profile menu (name + email); rendered as a disabled
+// menu item so it carries the correct MatMenu padding but receives no hover state.
+.profile-menu-header {
+  padding: 12px 16px 8px !important;
+  cursor: default;
+
+  &:hover {
+    background: none !important;
+  }
+}
+
+.profile-menu-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--txt-1);
+  margin: 0 0 2px;
+}
+
+.profile-menu-email {
+  font-size: 12px;
+  color: var(--txt-2);
+  margin: 0;
+}
+
+.profile-menu-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
 }
 
 // ── Sidebar footer / logout ────────────────────────────────────
