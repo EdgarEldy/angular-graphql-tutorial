@@ -451,3 +451,22 @@ body {
   height: 42px;
   font-size: 15px;
 }
+
+// ── Angular Material MDC token overrides ───────────────────────
+// mat.theme() hard-codes paginator/table background tokens to white so the
+// ::ng-deep background rules inside list pages have no effect in dark mode.
+// Overriding the tokens globally with design-token references fixes this without
+// duplicating per-page styles: --surface already switches value in all three
+// theme states (OS preference, data-theme="dark", data-theme="light").
+.mat-mdc-paginator {
+  --mat-paginator-container-background-color: var(--surface);
+  --mat-paginator-container-text-color: var(--txt-2);
+}
+
+.mat-mdc-table {
+  --mat-table-background-color: var(--surface);
+  --mat-table-row-item-label-text-color: var(--txt-1);
+  --mat-table-row-item-outline-color: var(--border);
+  --mat-table-header-headline-color: var(--txt-2);
+  --mat-table-header-row-item-horizontal-inset: var(--border);
+}
