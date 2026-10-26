@@ -15,6 +15,9 @@
   width: var(--sidebar-w);
   flex-shrink: 0;
   background: var(--sb-bg);
+  // Right border provides visual separation in light mode where the sidebar
+  // and the main area share similar background colors.
+  border-right: 1px solid var(--sb-div);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -52,7 +55,7 @@
 }
 
 .brand-name {
-  color: #ffffff;
+  color: var(--sb-txt-a);
   font-weight: 700;
   font-size: 15px;
   letter-spacing: -0.01em;
@@ -71,7 +74,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #4b5563;
+  color: var(--sb-txt);
 }
 
 .nav-item {
@@ -99,7 +102,7 @@
 
   &:hover {
     background: var(--sb-hover);
-    color: #d1d5db;
+    color: var(--sb-txt-a);
   }
 
   &.active {
@@ -256,7 +259,8 @@
   padding: 9px 10px;
   border-radius: var(--r);
   cursor: pointer;
-  color: #9ca3af;
+  // Use the sidebar text token so the button is readable in both light and dark sidebar
+  color: var(--sb-txt);
   font-size: 14px;
   font-weight: 500;
   font-family: var(--font);
@@ -273,8 +277,9 @@
     color: inherit;
   }
 
+  // Red hover is kept regardless of theme -- it signals a destructive action
   &:hover {
     background: rgba(239, 68, 68, 0.1);
-    color: #fca5a5;
+    color: #ef4444;
   }
 }
