@@ -51,15 +51,37 @@
   <!-- ── Main area ─────────────────────────────────────────────── -->
   <div class="app-main">
     <header class="toolbar">
-      <span class="tb-title">GraphQL Tutorial</span>
+      <!-- Title links to / so the user can return home from any page -->
+      <a class="tb-title" routerLink="/">GraphQL Tutorial</a>
       <div class="tb-actions">
         <!-- Theme toggle: sets data-theme on <html> so all CSS token
-             blocks (prefers-color-scheme and [data-theme]) stay in sync. -->
+             blocks (prefers-color-scheme and [data-theme]) stay in sync.
+             The initial icon reflects the actual current theme (OS or explicit). -->
         <button class="theme-btn"
                 (click)="toggleTheme()"
                 [title]="darkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
           <mat-icon>{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
         </button>
+
+        <!-- Profile button: shows user initials, opens a MatMenu with name/email and sign-out -->
+        <button class="profile-btn" [matMenuTriggerFor]="profileMenu">
+          <span class="profile-initials">{{ userInitials() }}</span>
+        </button>
+
+        <!-- MatMenu is rendered in an overlay; it is not part of the toolbar DOM -->
+        <mat-menu #profileMenu="matMenu" class="profile-menu">
+          @if (currentUser(); as user) {
+            <div class="profile-menu-header" mat-menu-item disabled>
+              <p class="profile-menu-name">{{ user.firstName }} {{ user.lastName }}</p>
+              <p class="profile-menu-email">{{ user.email }}</p>
+            </div>
+            <div class="profile-menu-divider"></div>
+          }
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            Sign out
+          </button>
+        </mat-menu>
       </div>
     </header>
 
