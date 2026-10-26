@@ -322,6 +322,9 @@ body {
   font-family: var(--font);
   outline: none;
   width: 100%;
+  // border-box ensures padding is included in the declared width so all
+  // inputs line up regardless of whether they carry extra right padding
+  box-sizing: border-box;
   transition: border-color 0.15s;
 
   &:focus {
@@ -372,6 +375,8 @@ body {
   position: relative;
   display: flex;
   align-items: center;
+  // Must be full-width so the input matches the email field width exactly
+  width: 100%;
 
   .form-inp {
     // Reserve space for the 32px toggle button
