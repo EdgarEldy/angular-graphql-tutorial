@@ -1,46 +1,71 @@
-<mat-toolbar color="primary">
-  <button mat-icon-button (click)="toggleSidenav()" aria-label="Toggle navigation">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <span class="toolbar-title">Angular GraphQL Tutorial</span>
+<!-- Fixed sidebar + sticky toolbar layout.
+     The sidebar is always visible; admin items appear for ADMIN users only. -->
+<div class="app-shell">
 
-  <!-- Logout button lives in the shell, not the service, because navigation is UI concern -->
-  <button mat-icon-button matTooltip="Sign out" aria-label="Sign out" (click)="logout()">
-    <mat-icon>logout</mat-icon>
-  </button>
-</mat-toolbar>
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="brand-icon">
+        <mat-icon>hub</mat-icon>
+      </div>
+      <span class="brand-name">GraphQL Tutorial</span>
+    </div>
 
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav [opened]="sidenavOpen()" mode="side" class="sidenav">
-    <mat-nav-list>
+    <nav class="sb-nav">
+      <span class="sec-label">Menu</span>
       @for (item of navItems; track item.route) {
-        <a mat-list-item
+        <a class="nav-item"
            [routerLink]="item.route"
-           routerLinkActive="active-link"
+           routerLinkActive="active"
            [routerLinkActiveOptions]="{ exact: false }">
-          <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-          <span matListItemTitle>{{ item.label }}</span>
+          <mat-icon>{{ item.icon }}</mat-icon>
+          {{ item.label }}
         </a>
       }
 
       <!-- Admin section: visible only when the current user holds the ADMIN role -->
       @if (isAdmin()) {
-        <mat-divider />
-        <h3 mat-subheader>Administration</h3>
+        <div class="sb-div"></div>
+        <span class="sec-label">Administration</span>
         @for (item of adminNavItems; track item.route) {
-          <a mat-list-item
+          <a class="nav-item"
              [routerLink]="item.route"
-             routerLinkActive="active-link"
-             [routerLinkActiveOptions]="{ exact: true }">
-            <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
-            <span matListItemTitle>{{ item.label }}</span>
+             routerLinkActive="active"
+             [routerLinkActiveOptions]="{ exact: false }">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            {{ item.label }}
           </a>
         }
       }
-    </mat-nav-list>
-  </mat-sidenav>
+    </nav>
 
-  <mat-sidenav-content class="content">
-    <router-outlet />
-  </mat-sidenav-content>
-</mat-sidenav-container>
+    <div class="sb-footer">
+      <!-- Logout button lives in the shell, not the service, because navigation is a UI concern -->
+      <button class="nav-logout" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main area ─────────────────────────────────────────────── -->
+  <div class="app-main">
+    <header class="toolbar">
+      <span class="tb-title">GraphQL Tutorial</span>
+      <div class="tb-actions">
+        <!-- Theme toggle: sets data-theme on <html> so all CSS token
+             blocks (prefers-color-scheme and [data-theme]) stay in sync. -->
+        <button class="theme-btn"
+                (click)="toggleTheme()"
+                [title]="darkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+          <mat-icon>{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+
+</div>
