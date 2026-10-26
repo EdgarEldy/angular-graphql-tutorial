@@ -259,7 +259,8 @@
   padding: 9px 10px;
   border-radius: var(--r);
   cursor: pointer;
-  color: #9ca3af;
+  // Use the sidebar text token so the button is readable in both light and dark sidebar
+  color: var(--sb-txt);
   font-size: 14px;
   font-weight: 500;
   font-family: var(--font);
@@ -276,8 +277,9 @@
     color: inherit;
   }
 
+  // Red hover is kept regardless of theme -- it signals a destructive action
   &:hover {
     background: rgba(239, 68, 68, 0.1);
-    color: #fca5a5;
+    color: #ef4444;
   }
 }
