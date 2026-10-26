@@ -365,6 +365,45 @@ body {
   }
 }
 
+// ── Password-input toggle wrapper ─────────────────────────────
+// Wraps a .form-inp to add a show/hide eye icon button on the right.
+// The input itself gains right padding so text never slides under the button.
+.form-inp-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .form-inp {
+    // Reserve space for the 32px toggle button
+    padding-right: 40px;
+  }
+}
+
+// Native button inside .form-inp-wrap that toggles password visibility
+.form-inp-toggle {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--txt-3);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  transition: color 0.15s;
+
+  &:hover {
+    color: var(--txt-2);
+  }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
 // ── Shared button utilities ────────────────────────────────────
 // Plain <button> elements styled with design tokens.
 // Using native buttons avoids Angular Material's theme-dependent
