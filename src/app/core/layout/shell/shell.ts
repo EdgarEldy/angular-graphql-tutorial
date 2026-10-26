@@ -6,11 +6,17 @@ import { AuthService } from '../../auth/auth.service';
 
 /**
  * A single sidenav link definition.
+ *
+ * exactMatch controls routerLinkActiveOptions.exact. Set it to true on any
+ * route whose path is a prefix of another nav item's path so that both items
+ * do not appear active simultaneously (e.g. /roles vs /roles/permissions).
  */
 interface NavItem {
   label: string;
   icon: string;
   route: string;
+  /** When true, routerLinkActive applies only on an exact URL match. */
+  exactMatch?: boolean;
 }
 
 /**
@@ -92,7 +98,9 @@ export class Shell {
   /** Nav items shown only to admin users. */
   readonly adminNavItems: NavItem[] = [
     { label: 'Users', icon: 'manage_accounts', route: '/users' },
-    { label: 'Roles', icon: 'admin_panel_settings', route: '/roles' },
+    // exactMatch: true prevents /roles from also being highlighted when the
+    // user is on /roles/permissions, which starts with the same path segment.
+    { label: 'Roles', icon: 'admin_panel_settings', route: '/roles', exactMatch: true },
     { label: 'Permissions', icon: 'security', route: '/roles/permissions' },
   ];
 
