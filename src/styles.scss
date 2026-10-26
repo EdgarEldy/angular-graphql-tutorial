@@ -27,14 +27,14 @@ html {
   --sidebar-w: 248px;
   --toolbar-h: 64px;
 
-  // Sidebar (always dark regardless of theme)
-  --sb-bg: #111827;
-  --sb-txt: #9ca3af;
-  --sb-txt-a: #ffffff;
-  --sb-active-bg: rgba(99, 102, 241, 0.18);
+  // Sidebar -- light mode values (dark values applied in the dark mode blocks below)
+  --sb-bg: #ffffff;
+  --sb-txt: #64748b;
+  --sb-txt-a: #0f172a;
+  --sb-active-bg: rgba(99, 102, 241, 0.08);
   --sb-active-b: #6366f1;
-  --sb-hover: rgba(255, 255, 255, 0.05);
-  --sb-div: rgba(255, 255, 255, 0.08);
+  --sb-hover: rgba(15, 23, 42, 0.04);
+  --sb-div: rgba(15, 23, 42, 0.08);
 
   // Accent (indigo)
   --accent: #6366f1;
@@ -89,6 +89,13 @@ html {
     --sh-drop: 0 8px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
     --sh-dialog: 0 24px 64px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
     color-scheme: dark;
+    // Sidebar dark mode values
+    --sb-bg: #111827;
+    --sb-txt: #9ca3af;
+    --sb-txt-a: #ffffff;
+    --sb-active-bg: rgba(99, 102, 241, 0.18);
+    --sb-hover: rgba(255, 255, 255, 0.05);
+    --sb-div: rgba(255, 255, 255, 0.08);
   }
 }
 
@@ -108,6 +115,13 @@ html {
   --sh-drop: 0 8px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
   --sh-dialog: 0 24px 64px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
   color-scheme: dark;
+  // Sidebar dark mode values
+  --sb-bg: #111827;
+  --sb-txt: #9ca3af;
+  --sb-txt-a: #ffffff;
+  --sb-active-bg: rgba(99, 102, 241, 0.18);
+  --sb-hover: rgba(255, 255, 255, 0.05);
+  --sb-div: rgba(255, 255, 255, 0.08);
 }
 
 body {
@@ -138,11 +152,14 @@ body {
   overflow: hidden;
 }
 
-// Left dark panel: brand + contextual tagline + inspirational quote
+// Left dark panel: brand + contextual tagline + inspirational quote.
+// Hardcoded to #111827 so it stays dark in both themes -- the split-panel
+// design relies on the visual contrast between the dark left side and the
+// light/dark form card on the right.
 .auth-panel {
   width: 420px;
   flex-shrink: 0;
-  background: var(--sb-bg);
+  background: #111827;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
