@@ -62,6 +62,11 @@ export class ResetPasswordPagePage {
   readonly success = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
+  /** Controls visibility of the new-password field. */
+  readonly showNewPassword = signal(false);
+  /** Controls visibility of the confirm-password field. */
+  readonly showConfirmPassword = signal(false);
+
   /**
    * Typed reactive form with a group-level validator to enforce password match.
    *

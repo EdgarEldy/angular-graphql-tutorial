@@ -46,6 +46,9 @@ export class RegisterPagePage {
 
   readonly loading = signal(false);
 
+  /** Controls whether the password field renders as text (true) or password (false). */
+  readonly showPassword = signal(false);
+
   /**
    * When the registration succeeds the page switches to a success message.
    * Storing a boolean signal avoids a router navigation that would lose context.
