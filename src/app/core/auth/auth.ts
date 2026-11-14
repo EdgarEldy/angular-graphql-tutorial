@@ -1,13 +1,16 @@
 import { Injectable, signal, computed } from '@angular/core';
-import { AUTH_TOKEN_KEY } from './auth.models';
+import { AUTH_TOKEN_KEY, AUTH_REFRESH_TOKEN_KEY } from './auth.models';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Auth {
   private readonly _token = signal<string | null>(this.loadToken());
+  // Refresh token is persisted separately so it survives a page reload.
+  private readonly _refreshToken = signal<string | null>(this.loadRefreshToken());
 
   readonly token = this._token.asReadonly();
+  readonly refreshToken = this._refreshToken.asReadonly();
   readonly isAuthenticated = computed(() => this._token() !== null);
 
   /**
@@ -24,33 +27,53 @@ export class Auth {
   }
 
   /**
-   * Persists a new token to localStorage and updates the reactive signal.
+   * Persists both the access token and the refresh token, then updates signals.
    *
-   * Writing to localStorage ensures the token survives a page reload. Updating the signal
-   * simultaneously keeps computed values (isAuthenticated, nav guards) consistent without
-   * requiring a separate read cycle.
+   * The access token is used for every API request; the refresh token is stored
+   * for future silent renewal when the access token expires. Writing both to
+   * localStorage ensures they survive page reloads. Signals update simultaneously
+   * so guards and computed values re-evaluate without an extra read cycle.
    *
-   * @param token - A valid JWT string received from the login or register mutation.
+   * @param accessToken - The JWT access token from the login or refresh mutation.
+   * @param refreshToken - The refresh token from the same mutation, or null if absent.
    */
-  setToken(token: string): void {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
-    this._token.set(token);
+  setTokens(accessToken: string, refreshToken: string | null | undefined): void {
+    localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
+    this._token.set(accessToken);
+    if (refreshToken) {
+      localStorage.setItem(AUTH_REFRESH_TOKEN_KEY, refreshToken);
+      this._refreshToken.set(refreshToken);
+    }
   }
 
   /**
-   * Removes the token from localStorage and resets the signal to null.
+   * Removes both tokens from localStorage and resets both signals to null.
    *
-   * Called by the error link on UNAUTHENTICATED errors (expired token) and by an explicit
-   * logout action. Setting the signal to null triggers all downstream computed signals
-   * (isAuthenticated, guards) to re-evaluate synchronously.
+   * Called by the error link on UNAUTHENTICATED errors (expired token) and by an
+   * explicit logout action. Setting signals to null triggers all downstream computed
+   * signals (isAuthenticated, guards) to re-evaluate synchronously.
    */
   clearToken(): void {
     localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(AUTH_REFRESH_TOKEN_KEY);
     this._token.set(null);
+    this._refreshToken.set(null);
   }
 
   /**
-   * Reads the persisted token from localStorage at service initialisation time.
+   * Returns the current refresh token from the reactive signal.
+   *
+   * Use in contexts where a plain value is needed (interceptors, auth-feature
+   * refreshToken call) rather than a reactive expression.
+   *
+   * @returns The stored refresh token string, or null if absent.
+   */
+  getRefreshToken(): string | null {
+    return this._refreshToken();
+  }
+
+  /**
+   * Reads the persisted access token from localStorage at service initialisation time.
    *
    * Wrapped in try/catch because localStorage access can throw a SecurityError in
    * private-browsing modes where storage is blocked by the browser. Returning null
@@ -61,6 +84,19 @@ export class Auth {
   private loadToken(): string | null {
     try {
       return localStorage.getItem(AUTH_TOKEN_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Reads the persisted refresh token from localStorage at service initialisation time.
+   *
+   * @returns The stored refresh token string, or null if absent or inaccessible.
+   */
+  private loadRefreshToken(): string | null {
+    try {
+      return localStorage.getItem(AUTH_REFRESH_TOKEN_KEY);
     } catch {
       return null;
     }

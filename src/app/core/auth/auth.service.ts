@@ -92,8 +92,10 @@ export class AuthService {
       .pipe(
         tap((result) => {
           const payload = result.data?.login;
-          if (payload?.token) {
-            this.auth.setToken(payload.token);
+          if (payload?.accessToken) {
+            // accessToken is the JWT sent with every API request; refreshToken
+            // is stored separately for silent renewal when the access token expires.
+            this.auth.setTokens(payload.accessToken, payload.refreshToken);
             this._session.set(payload.user);
             // Reconnect the WS so the next subscription uses the new token.
             this.wsClientService.reconnect();
