@@ -41,8 +41,9 @@ describe('Products', () => {
   });
 
   it('watchProducts sends GetProductsDocument with correct variables', () => {
-    // Call the method under test -- this creates the watchQuery internally
-    const queryRef = service.watchProducts(null, 2, 20);
+    // Call the method under test -- this creates the watchQuery internally.
+    // Pass all four optional filters as null to exercise the no-filter path.
+    const queryRef = service.watchProducts(null, null, null, null, 2, 20);
 
     // Subscribe to trigger the actual Apollo call
     queryRef.valueChanges.subscribe();
@@ -52,6 +53,9 @@ describe('Products', () => {
 
     // Verify all variables are forwarded correctly
     expect(op.operation.variables['categoryId']).toBeNull();
+    expect(op.operation.variables['productName']).toBeNull();
+    expect(op.operation.variables['minPrice']).toBeNull();
+    expect(op.operation.variables['maxPrice']).toBeNull();
     expect(op.operation.variables['page']).toBe(2);
     expect(op.operation.variables['size']).toBe(20);
 
@@ -70,8 +74,11 @@ describe('Products', () => {
     });
   });
 
-  it('watchProducts forwards a categoryId filter when provided', () => {
-    const queryRef = service.watchProducts('42', 0, 10);
+  it('watchProducts forwards filters when provided', () => {
+    // categoryId, productName, minPrice and maxPrice are all optional.
+    // Passing real values verifies that none of them are dropped before
+    // the Apollo variables object is assembled.
+    const queryRef = service.watchProducts('42', 'Widget', 5.0, 50.0, 0, 10);
 
     queryRef.valueChanges.subscribe();
 
@@ -79,6 +86,9 @@ describe('Products', () => {
 
     // The list is one request even when filtered -- no N+1 per row
     expect(op.operation.variables['categoryId']).toBe('42');
+    expect(op.operation.variables['productName']).toBe('Widget');
+    expect(op.operation.variables['minPrice']).toBe(5.0);
+    expect(op.operation.variables['maxPrice']).toBe(50.0);
     expect(op.operation.variables['page']).toBe(0);
     expect(op.operation.variables['size']).toBe(10);
 
