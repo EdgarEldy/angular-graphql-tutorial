@@ -34,7 +34,7 @@ import { AuthService } from '../../../../core/auth/auth.service';
   styleUrl: './dashboard.page.scss',
 })
 export class DashboardPage {
-  private readonly auth = inject(Auth);
+  protected readonly auth = inject(Auth);
   protected readonly authService = inject(AuthService);
 
   /**

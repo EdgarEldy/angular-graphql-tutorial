@@ -62,8 +62,10 @@ describe('Shell', () => {
   it('toggles the dark mode on toggleTheme()', () => {
     // The redesigned shell uses a custom sidebar; sidenav was replaced by
     // a darkMode signal that controls the data-theme attribute on <html>.
-    const initial = component.darkMode();
-    component.toggleTheme();
-    expect(component.darkMode()).toBe(!initial);
+    // Cast to any to access the protected signal from outside the class.
+    const c = component as unknown as { darkMode: () => boolean; toggleTheme: () => void };
+    const initial = c.darkMode();
+    c.toggleTheme();
+    expect(c.darkMode()).toBe(!initial);
   });
 });
