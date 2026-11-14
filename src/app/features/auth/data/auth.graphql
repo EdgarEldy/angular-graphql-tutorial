@@ -1,5 +1,7 @@
 fragment AuthPayloadFields on AuthPayload {
-  token
+  accessToken
+  refreshToken
+  expiresIn
   user {
     id
     firstName
@@ -65,4 +67,30 @@ mutation RequestPasswordReset($email: String!) {
 
 mutation ResetPassword($token: String!, $newPassword: String!) {
   resetPassword(token: $token, newPassword: $newPassword)
+}
+
+mutation RefreshToken($token: String!) {
+  refreshToken(token: $token) {
+    ...AuthPayloadFields
+  }
+}
+
+mutation UpdateProfile($input: UpdateProfileInput!) {
+  updateProfile(input: $input) {
+    id
+    firstName
+    lastName
+    email
+    enabled
+    accountLocked
+    roles {
+      id
+      roleName
+      permissions {
+        id
+        resource
+        action
+      }
+    }
+  }
 }
