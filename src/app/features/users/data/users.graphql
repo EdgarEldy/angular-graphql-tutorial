@@ -51,14 +51,8 @@ mutation DeleteUser($id: ID!) {
   deleteUser(id: $id)
 }
 
-mutation AssignRoleToUser($userId: ID!, $roleId: ID!) {
-  assignRoleToUser(userId: $userId, roleId: $roleId) {
-    ...UserFields
-  }
-}
-
-mutation RemoveRoleFromUser($userId: ID!, $roleId: ID!) {
-  removeRoleFromUser(userId: $userId, roleId: $roleId) {
+mutation UpdateUserRoles($id: ID!, $input: UpdateUserRolesInput!) {
+  updateUserRoles(id: $id, input: $input) {
     ...UserFields
   }
 }
