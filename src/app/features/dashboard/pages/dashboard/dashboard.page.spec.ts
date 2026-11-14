@@ -38,7 +38,7 @@ describe('DashboardPage', () => {
 
   it('should show placeholder greeting when no user is signed in', () => {
     fixture.detectChanges();
-    // displayName() returns 'there' when no token is present (Auth.claims() is null)
+    // displayName() returns 'there' when AuthService.currentUser() is null
     const title: HTMLElement = fixture.nativeElement.querySelector('.dash-title');
     expect(title.textContent).toContain('there');
   });
