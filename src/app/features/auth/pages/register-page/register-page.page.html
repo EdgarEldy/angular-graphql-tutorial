@@ -109,6 +109,25 @@
               }
             </div>
 
+            <div class="form-f">
+              <label class="form-lbl" for="reg-confirm-password">Confirm password <span>*</span></label>
+              <div class="form-inp-wrap">
+                <input
+                  id="reg-confirm-password"
+                  class="form-inp"
+                  [class.err]="(confirmPasswordControl.invalid && confirmPasswordControl.touched) || (form.hasError('passwordMismatch') && confirmPasswordControl.touched)"
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="confirmPassword"
+                  autocomplete="new-password"
+                  placeholder="••••••••" />
+              </div>
+              @if (confirmPasswordControl.touched && confirmPasswordControl.hasError('required')) {
+                <span class="form-err">Please confirm your password</span>
+              } @else if (confirmPasswordControl.touched && form.hasError('passwordMismatch')) {
+                <span class="form-err">Passwords do not match</span>
+              }
+            </div>
+
           </div>
 
           <button

@@ -4,6 +4,8 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -20,6 +22,26 @@ interface RegisterForm {
   lastName: FormControl<string>;
   email: FormControl<string>;
   password: FormControl<string>;
+  confirmPassword: FormControl<string>;
+}
+
+/**
+ * Cross-field validator that checks confirmPassword matches password.
+ *
+ * Attached to the FormGroup (not to a single control) so it can read both
+ * sibling control values. Returns `{ passwordMismatch: true }` when the
+ * passwords differ; null when they match or when password is empty (the
+ * individual Validators.required on password already covers the empty case).
+ *
+ * @returns A ValidatorFn that operates on a FormGroup control.
+ */
+function passwordsMatchValidator(): ValidatorFn {
+  return (group: AbstractControl): ValidationErrors | null => {
+    const password = group.get('password')?.value as string;
+    const confirm = group.get('confirmPassword')?.value as string;
+    if (!password || !confirm) return null;
+    return password === confirm ? null : { passwordMismatch: true };
+  };
 }
 
 /**
@@ -66,31 +88,44 @@ export class RegisterPagePage {
    * Password length (min 8) is a UX hint only: the backend is the authority
    * on the actual password policy. The frontend check prevents obviously bad
    * inputs before the network round-trip.
+   *
+   * The group-level `passwordsMatchValidator` checks that confirmPassword
+   * equals password. Business rule 8 in the API contract requires this client-
+   * side check before sending the request to the backend.
    */
-  readonly form = new FormGroup<RegisterForm>({
-    firstName: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    lastName: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required],
-    }),
-    email: new FormControl('', {
-      nonNullable: true,
-      validators: [Validators.required, Validators.email],
-    }),
-    password: new FormControl('', {
-      nonNullable: true,
-      // minLength(8) is a UX hint -- the backend enforces its own policy
-      validators: [Validators.required, Validators.minLength(8)],
-    }),
-  });
+  readonly form = new FormGroup<RegisterForm>(
+    {
+      firstName: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      lastName: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      email: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required, Validators.email],
+      }),
+      password: new FormControl('', {
+        nonNullable: true,
+        // minLength(8) is a UX hint -- the backend enforces its own policy
+        validators: [Validators.required, Validators.minLength(8)],
+      }),
+      confirmPassword: new FormControl('', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+    },
+    // Group-level validator runs after all individual controls are valid.
+    { validators: passwordsMatchValidator() },
+  );
 
   get firstNameControl(): AbstractControl { return this.form.controls.firstName; }
   get lastNameControl(): AbstractControl { return this.form.controls.lastName; }
   get emailControl(): AbstractControl { return this.form.controls.email; }
   get passwordControl(): AbstractControl { return this.form.controls.password; }
+  get confirmPasswordControl(): AbstractControl { return this.form.controls.confirmPassword; }
 
   /**
    * Submits the registration form.

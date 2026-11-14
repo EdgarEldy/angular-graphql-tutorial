@@ -18,10 +18,10 @@ import { Roles } from '../../data/roles';
 import { Notification } from '../../../../core/notification/notification';
 import { mapError } from '../../../../core/graphql/error-mapper';
 import type {
-  AssignPermissionToRoleMutation,
   PermissionFieldsFragment,
-  RemovePermissionFromRoleMutation,
   RoleFieldsFragment,
+  UpdateRolePermissionsInput,
+  UpdateRolePermissionsMutation,
 } from '../../../../core/graphql/generated/graphql';
 import type { Apollo } from 'apollo-angular';
 
@@ -106,17 +106,20 @@ export class ManagePermissionsDialog {
   /**
    * Assigns the selected permission to the role.
    *
-   * The mutation returns the updated Role. We update the local role signal so
-   * the chip list reflects the change immediately, and Apollo normalises the
-   * result into the cache so the role-list table also updates.
+   * Uses `updateRolePermissions` with `{ add: [permissionId] }` per the new
+   * batch API. The mutation returns the updated Role which Apollo normalises
+   * into the cache; we also update the local role signal for immediate chip
+   * feedback without waiting for a cache read.
    */
   addPermission(): void {
     const permissionId = this.addPermissionControl.value;
     if (!permissionId || this.mutating()) return;
 
     this.mutating.set(true);
-    this.rolesService.assignPermissionToRole(this.role().id, permissionId).subscribe({
-      next: (result: Apollo.MutateResult<AssignPermissionToRoleMutation>) => {
+    // add: [permissionId] batches a single assignment -- the array allows future multi-select
+    const input: UpdateRolePermissionsInput = { add: [permissionId] };
+    this.rolesService.updateRolePermissions(this.role().id, input).subscribe({
+      next: (result: Apollo.MutateResult<UpdateRolePermissionsMutation>) => {
         this.mutating.set(false);
         // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
         if (result.error) {
@@ -124,7 +127,7 @@ export class ManagePermissionsDialog {
           this.notification.error(appError.message);
           return;
         }
-        const updatedRole = result.data?.assignPermissionToRole;
+        const updatedRole = result.data?.updateRolePermissions;
         if (updatedRole) {
           this.role.set(updatedRole);
           this.addPermissionControl.reset();
@@ -140,16 +143,19 @@ export class ManagePermissionsDialog {
   /**
    * Removes a permission from the role.
    *
-   * Updates the local role signal from the mutation result so the chips update
-   * without a refetch.
+   * Uses `updateRolePermissions` with `{ remove: [permissionId] }` per the
+   * batch API contract. Updates the local role signal from the mutation result
+   * so the chips update without a refetch.
    *
    * @param permission - The permission to remove.
    */
   removePermission(permission: PermissionFieldsFragment): void {
     if (this.mutating()) return;
     this.mutating.set(true);
-    this.rolesService.removePermissionFromRole(this.role().id, permission.id).subscribe({
-      next: (result: Apollo.MutateResult<RemovePermissionFromRoleMutation>) => {
+    // remove: [permission.id] targets a single permission -- same batch input, different array
+    const input: UpdateRolePermissionsInput = { remove: [permission.id] };
+    this.rolesService.updateRolePermissions(this.role().id, input).subscribe({
+      next: (result: Apollo.MutateResult<UpdateRolePermissionsMutation>) => {
         this.mutating.set(false);
         // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
         if (result.error) {
@@ -157,7 +163,7 @@ export class ManagePermissionsDialog {
           this.notification.error(appError.message);
           return;
         }
-        const updatedRole = result.data?.removePermissionFromRole;
+        const updatedRole = result.data?.updateRolePermissions;
         if (updatedRole) {
           this.role.set(updatedRole);
         }
