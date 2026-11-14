@@ -1,78 +1,75 @@
 @use '@angular/material' as mat;
 
-// Import Inter font for the custom sidebar/toolbar design system.
-// Material components continue to use Roboto (set in mat.theme below).
+// Inter from Google Fonts: drives all custom UI typography
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-html {
-  height: 100%;
-  // Use a violet palette so Material buttons / inputs align with --accent #6366f1.
-  @include mat.theme(
-    (
-      color: (
-        primary: mat.$violet-palette,
-        tertiary: mat.$blue-palette,
-      ),
-      typography: Roboto,
-      density: 0,
-    )
-  );
-}
+// Material Icons (filled + outlined): shell and auth pages use outlined variant
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons|Material+Icons+Outlined');
 
-// ── Design tokens ─────────────────────────────────────────────
-// All custom components (sidebar, toolbar, page-header, tables,
-// dialogs) consume these tokens via var(). Material components
-// are styled separately with ::ng-deep where needed.
+// ── Design tokens ─────────────────────────────────────────────────────────────
+// Every custom component reads these CSS custom properties instead of
+// hard-coded values, so dark mode is a single attribute swap on :root.
 :root {
+  // Angular Material's mat.theme() emits its colors with the CSS light-dark()
+  // function, which picks the light or dark value from the nearest
+  // color-scheme. Declaring it here, on the same element as the dark overrides
+  // below, lets those overrides win: a color-scheme set on <body> would apply
+  // to every descendant (dialogs and menus included) and pin Material to
+  // light colors even when the application is dark.
+  color-scheme: light;
+
+  // Layout dimensions
   --sidebar-w: 248px;
   --toolbar-h: 64px;
 
-  // Sidebar -- light mode values (dark values applied in the dark mode blocks below)
-  --sb-bg: #ffffff;
-  --sb-txt: #64748b;
+  // Sidebar: light-mode defaults; dark-mode blocks below override to the dark palette
+  --sb-bg: #fff;
+  --sb-txt: #475569;
   --sb-txt-a: #0f172a;
-  --sb-active-bg: rgba(99, 102, 241, 0.08);
+  --sb-active-bg: rgba(99, 102, 241, 0.1);
   --sb-active-b: #6366f1;
-  --sb-hover: rgba(15, 23, 42, 0.04);
-  --sb-div: rgba(15, 23, 42, 0.08);
+  --sb-hover: rgba(0, 0, 0, 0.04);
+  --sb-div: #e2e8f0;
 
-  // Accent (indigo)
+  // Accent: indigo #6366f1 used for active states, buttons, links
   --accent: #6366f1;
   --accent-h: #4f46e5;
-  --accent-fg: #ffffff;
+  --accent-fg: #fff;
 
-  // Surfaces -- light values (default)
+  // App surfaces (light theme defaults)
   --bg: #f1f5f9;
-  --surface: #ffffff;
-  --toolbar-bg: #ffffff;
+  --surface: #fff;
+  --toolbar-bg: #fff;
 
-  // Text
+  // Text hierarchy
   --txt-1: #0f172a;
   --txt-2: #64748b;
   --txt-3: #94a3b8;
 
-  // Borders & hover
+  // Borders & hover states
   --border: #e2e8f0;
   --row-hover: #f8fafc;
 
-  // Tags / chips
+  // Status tags (e.g., category badge on a product row)
   --tag-bg: #eef2ff;
   --tag-txt: #4338ca;
 
-  // Shadows
+  // Elevation shadows: three levels used across cards, dropdowns and dialogs
   --sh-card: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 2px 8px rgba(0, 0, 0, 0.06);
   --sh-drop: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
   --sh-dialog: 0 24px 64px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.1);
 
-  // Shape
+  // Border radii
   --r: 8px;
   --r-lg: 12px;
 
-  // Typography
+  // Font stack
   --font: 'Inter', system-ui, sans-serif;
 }
 
-// Dark mode via OS preference (does not override explicit [data-theme] choice)
+// ── Dark mode: system preference ──────────────────────────────────────────────
+// Applied when the OS is in dark mode and the user has not explicitly chosen
+// light mode via the in-app toggle (data-theme="light" opt-out).
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: #0d1117;
@@ -88,18 +85,32 @@ html {
     --sh-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.3);
     --sh-drop: 0 8px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
     --sh-dialog: 0 24px 64px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
-    color-scheme: dark;
-    // Sidebar dark mode values
+
     --sb-bg: #111827;
     --sb-txt: #9ca3af;
-    --sb-txt-a: #ffffff;
+    --sb-txt-a: #fff;
     --sb-active-bg: rgba(99, 102, 241, 0.18);
     --sb-hover: rgba(255, 255, 255, 0.05);
     --sb-div: rgba(255, 255, 255, 0.08);
+
+    // mat.theme() injects --mat-paginator-* tokens with hardcoded light values.
+    // Re-pointing them to our surface/text tokens keeps the paginator dark.
+    --mat-paginator-container-background-color: var(--surface);
+    --mat-paginator-container-text-color: var(--txt-1);
+
+    // mat.theme() sets the dialog container to its own light surface color.
+    // Re-pointing to --surface keeps dialogs consistent with the dark background.
+    --mdc-dialog-container-color: var(--surface);
+    --mat-dialog-container-color: var(--surface);
+    --mdc-dialog-subhead-color: var(--txt-1);
+    --mdc-dialog-supporting-text-color: var(--txt-1);
+
+    color-scheme: dark;
   }
 }
 
-// Dark mode via explicit [data-theme="dark"] attribute (toggle button)
+// The ShellComponent sets [data-theme="dark"] on <html> when the user clicks
+// the theme toggle, overriding the system preference in either direction.
 :root[data-theme='dark'] {
   --bg: #0d1117;
   --surface: #161b22;
@@ -114,37 +125,72 @@ html {
   --sh-card: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 2px 8px rgba(0, 0, 0, 0.3);
   --sh-drop: 0 8px 30px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
   --sh-dialog: 0 24px 64px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
-  color-scheme: dark;
-  // Sidebar dark mode values
+
   --sb-bg: #111827;
   --sb-txt: #9ca3af;
-  --sb-txt-a: #ffffff;
+  --sb-txt-a: #fff;
   --sb-active-bg: rgba(99, 102, 241, 0.18);
   --sb-hover: rgba(255, 255, 255, 0.05);
   --sb-div: rgba(255, 255, 255, 0.08);
+
+  --mat-paginator-container-background-color: var(--surface);
+  --mat-paginator-container-text-color: var(--txt-1);
+
+  --mdc-dialog-container-color: var(--surface);
+  --mat-dialog-container-color: var(--surface);
+  --mdc-dialog-subhead-color: var(--txt-1);
+  --mdc-dialog-supporting-text-color: var(--txt-1);
+
+  color-scheme: dark;
+}
+
+// ── Angular Material M3 theme ─────────────────────────────────────────────────
+html {
+  height: 100%;
+
+  // Keep the Material palette (azure/blue) so that Material-specific
+  // components (dialogs, snackbars, progress indicators) render coherently.
+  // Our custom components use --accent instead of Material's primary color.
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+// ── Global resets ─────────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 body {
-  color-scheme: light;
-  background-color: var(--bg);
-  color: var(--txt-1);
-  font-family: var(--font);
-  font-size: 14px;
   margin: 0;
   height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--txt-1);
 }
 
-// ── Shared layout utilities ────────────────────────────────────
+// ── Page container ────────────────────────────────────────────────────────────
 // Every feature page wraps its content in .page-container.
-// The design uses 28px padding to match the mockup's content area.
+// Not present in angular-tutorial (which pads via shell .content); kept here
+// because the graphql tutorial's list pages rely on this class directly.
 .page-container {
   padding: 28px;
 }
 
-// ── Auth split-panel layout ────────────────────────────────────
-// Shared across all five auth pages. The left panel stays #111827
-// (sidebar dark) regardless of app theme; the right form-wrap
-// inherits var(--bg) so it responds to dark-mode correctly.
+// ── Auth layout ───────────────────────────────────────────────────────────────
+// Full-screen two-column layout shared by all auth pages (login, register,
+// activate-account, forgot-password, reset-password). Auth pages render outside
+// the shell, directly into <app-root>, so they fill the entire viewport.
+
 .auth-screen {
   display: flex;
   height: 100vh;
@@ -152,20 +198,17 @@ body {
   overflow: hidden;
 }
 
-// Left dark panel: brand + contextual tagline + inspirational quote.
-// Hardcoded to #111827 so it stays dark in both themes -- the split-panel
-// design relies on the visual contrast between the dark left side and the
-// light/dark form card on the right.
+// Dark left panel: branding + tagline, hidden on small screens
 .auth-panel {
   width: 420px;
   flex-shrink: 0;
+  // Permanently dark, matching the sidebar; does not respond to --surface token
   background: #111827;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 48px;
 
-  // Hidden on narrow viewports; the form card fills the full screen
   @media (max-width: 700px) {
     display: none;
   }
@@ -187,7 +230,7 @@ body {
   justify-content: center;
   color: #fff;
 
-  // Override Material's default mat-icon dimensions
+  // mat-icon component: override default 24px icon dimensions
   mat-icon {
     font-size: 22px;
     width: 22px;
@@ -202,29 +245,25 @@ body {
   letter-spacing: -0.01em;
 }
 
-// Per-page tagline describing what this auth step unlocks
 .auth-tagline {
   color: #9ca3af;
   font-size: 15px;
   line-height: 1.7;
   max-width: 280px;
-  margin: 0;
 
   strong {
     color: #fff;
   }
 }
 
-// Italic quote anchored to the bottom of the left panel
 .auth-quote {
   color: #4b5563;
   font-size: 13px;
   line-height: 1.6;
   font-style: italic;
-  margin: 0;
 }
 
-// Right section: vertically and horizontally centres the auth-card
+// Right scrollable area containing the card
 .auth-form-wrap {
   flex: 1;
   display: flex;
@@ -235,7 +274,6 @@ body {
   background: var(--bg);
 }
 
-// Surface card that wraps the form inside auth-form-wrap
 .auth-card {
   background: var(--surface);
   border-radius: var(--r-lg);
@@ -261,7 +299,6 @@ body {
   line-height: 1.5;
 }
 
-// Stacked form fields container
 .auth-fields {
   display: flex;
   flex-direction: column;
@@ -269,7 +306,6 @@ body {
   margin-bottom: 20px;
 }
 
-// "or" separator between the submit button and the register link
 .auth-divider {
   display: flex;
   align-items: center;
@@ -287,7 +323,6 @@ body {
   }
 }
 
-// Navigation link below the card (e.g. "Don't have an account? Register")
 .auth-link {
   font-size: 13.5px;
   color: var(--txt-2);
@@ -306,10 +341,8 @@ body {
   }
 }
 
-// ── Shared form primitives (auth pages + dialogs) ──────────────
-// Native inputs and labels styled to match the design token system.
-// Auth pages use these instead of Angular Material mat-form-field so
-// the auth screens stay visually independent from the app's Material theme.
+// ── Shared form primitives ─────────────────────────────────────────────────────
+// Used in auth pages and in CRUD dialogs (categories, products, etc.).
 
 .form-f {
   display: flex;
@@ -328,6 +361,19 @@ body {
   }
 }
 
+// Wrapper used when a suffix icon (e.g. eye toggle) sits inside the field
+.form-inp-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  // Reserve space for the 32px toggle button
+  .form-inp {
+    padding-right: 40px;
+  }
+}
+
 .form-inp {
   background: var(--bg);
   border: 1.5px solid var(--border);
@@ -339,8 +385,6 @@ body {
   font-family: var(--font);
   outline: none;
   width: 100%;
-  // border-box ensures padding is included in the declared width so all
-  // inputs line up regardless of whether they carry extra right padding
   box-sizing: border-box;
   transition: border-color 0.15s;
 
@@ -357,13 +401,66 @@ body {
   }
 }
 
-// Field-level validation error shown below an input
+// Input with a trailing icon button: extra right padding prevents text overlap
+.form-inp-icon {
+  padding-right: 40px;
+}
+
+// Icon button placed at the right edge of .form-inp-wrap.
+// .form-inp-toggle is the name used in auth page templates (password visibility);
+// .form-inp-suffix is the name used in angular-tutorial for parity.
+.form-inp-suffix,
+.form-inp-toggle {
+  position: absolute;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--txt-2);
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s;
+
+  // mat-icon component and icon-font class: cap size to 18px
+  mat-icon,
+  .material-icons-outlined {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover {
+    color: var(--txt-1);
+  }
+}
+
+.form-hint {
+  font-size: 11.5px;
+  color: var(--txt-2);
+}
+
+// Field-level error shown below an input
 .form-err {
   font-size: 11.5px;
   color: #ef4444;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-icon,
+  .material-icons-outlined {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
 }
 
-// Banner-level error shown above the form (e.g., wrong credentials)
+// Banner-level error shown above the form fields (e.g., wrong credentials)
 .form-err-banner {
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.2);
@@ -374,9 +471,9 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  margin-bottom: 16px;
 
-  mat-icon {
+  mat-icon,
+  .material-icons-outlined {
     font-size: 18px;
     width: 18px;
     height: 18px;
@@ -385,51 +482,7 @@ body {
   }
 }
 
-// ── Password-input toggle wrapper ─────────────────────────────
-// Wraps a .form-inp to add a show/hide eye icon button on the right.
-// The input itself gains right padding so text never slides under the button.
-.form-inp-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  // Must be full-width so the input matches the email field width exactly
-  width: 100%;
-
-  .form-inp {
-    // Reserve space for the 32px toggle button
-    padding-right: 40px;
-  }
-}
-
-// Native button inside .form-inp-wrap that toggles password visibility
-.form-inp-toggle {
-  position: absolute;
-  right: 8px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--txt-3);
-  padding: 0;
-  display: flex;
-  align-items: center;
-  line-height: 1;
-  transition: color 0.15s;
-
-  &:hover {
-    color: var(--txt-2);
-  }
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-}
-
-// ── Shared button utilities ────────────────────────────────────
-// Plain <button> elements styled with design tokens.
-// Using native buttons avoids Angular Material's theme-dependent
-// disabled-state opacity that makes buttons invisible in dark mode.
+// ── Shared button utilities ────────────────────────────────────────────────────
 
 .btn {
   display: inline-flex;
@@ -462,6 +515,16 @@ body {
   }
 }
 
+.btn-secondary {
+  background: var(--surface);
+  color: var(--txt-1);
+  border: 1px solid var(--border);
+
+  &:hover {
+    background: var(--row-hover);
+  }
+}
+
 // Full-width variant for auth form submit buttons
 .btn-full {
   width: 100%;
@@ -469,21 +532,48 @@ body {
   font-size: 15px;
 }
 
-// ── Angular Material MDC token overrides ───────────────────────
-// mat.theme() hard-codes paginator/table background tokens to white so the
-// ::ng-deep background rules inside list pages have no effect in dark mode.
-// Overriding the tokens globally with design-token references fixes this without
-// duplicating per-page styles: --surface already switches value in all three
-// theme states (OS preference, data-theme="dark", data-theme="light").
-.mat-mdc-paginator {
-  --mat-paginator-container-background-color: var(--surface);
-  --mat-paginator-container-text-color: var(--txt-2);
+// ── Material primary button: align with app accent color ──────────────────────
+// mat.theme() uses mat.$azure-palette as primary, which renders an azure/blue
+// button. The app design uses --accent (#6366f1 indigo) for all primary actions.
+// The :not(:disabled) is required: Angular Material's internal SCSS generates its
+// own color token overrides on .mat-mdc-raised-button:not(:disabled).mat-primary,
+// so a plain .mat-primary selector loses the cascade in both light and dark mode.
+// background-color is added as a direct fallback for any M3 token-name variance
+// across Material versions.
+.mat-mdc-raised-button.mat-primary:not(:disabled) {
+  --mdc-protected-button-container-color: var(--accent);
+  --mdc-protected-button-label-text-color: #fff;
+  background-color: var(--accent);
+  color: #fff;
 }
 
-.mat-mdc-table {
-  --mat-table-background-color: var(--surface);
-  --mat-table-row-item-label-text-color: var(--txt-1);
-  --mat-table-row-item-outline-color: var(--border);
-  --mat-table-header-headline-color: var(--txt-2);
-  --mat-table-header-row-item-horizontal-inset: var(--border);
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-button.mat-primary {
+  --mdc-filled-button-container-color: var(--accent);
+  --mdc-filled-button-label-text-color: #fff;
+  --mdc-text-button-label-text-color: var(--accent);
+}
+
+// ── mat-form-field outline fix inside dialogs ─────────────────────────────────
+// mat-dialog-content sets overflow-y: auto which creates a clip boundary at the
+// content top. When a mat-form-field is the first child and its label floats, the
+// label extends a few pixels above the field's box and gets clipped. padding-top
+// gives the floating label the room it needs inside the scrollable area.
+mat-dialog-content form {
+  padding-top: 4px;
+}
+
+// The MDC notched outline uses three segments: leading, notch, trailing. The
+// notch segment must have no right border so the gap at the top is unobstructed.
+// Without this, some global CSS configurations render a right border on the notch
+// that visually closes the gap and makes the floating label overlap the border.
+.mdc-notched-outline__notch {
+  border-right: none;
+}
+
+// ── Two-column grid (used inside dialogs) ─────────────────────────────────────
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
