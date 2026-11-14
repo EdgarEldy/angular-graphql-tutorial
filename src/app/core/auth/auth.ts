@@ -14,6 +14,32 @@ export class Auth {
   readonly isAuthenticated = computed(() => this._token() !== null);
 
   /**
+   * Decoded JWT payload derived from the current access token.
+   *
+   * Recomputes every time the token signal changes (login, logout, refresh).
+   * Returns null when no token is present or when the payload cannot be parsed
+   * (malformed base64, invalid JSON). This avoids throwing in a computed signal,
+   * which would propagate an error into every consumer.
+   *
+   * The cast to { sub, exp, iat } covers the standard JWT claims present in
+   * every Spring Security token; additional custom claims are ignored here.
+   *
+   * @returns Parsed payload object, or null.
+   */
+  readonly claims = computed((): { sub: string; exp: number; iat: number } | null => {
+    const token = this._token();
+    if (!token) return null;
+    try {
+      // JWT has three base64url segments: header.payload.signature
+      const segment = token.split('.')[1];
+      // base64url uses '-' and '_' instead of '+' and '/' -- replace before atob()
+      return JSON.parse(atob(segment.replace(/-/g, '+').replace(/_/g, '/')));
+    } catch {
+      return null;
+    }
+  });
+
+  /**
    * Returns the current JWT token from the reactive signal.
    *
    * Prefer reading the `token` signal directly in templates; use this method in
