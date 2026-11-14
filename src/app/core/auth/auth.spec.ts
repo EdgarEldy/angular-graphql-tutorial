@@ -19,14 +19,14 @@ describe('Auth', () => {
   });
 
   it('stores the token in localStorage and exposes it via signal', () => {
-    service.setToken('test-jwt');
+    service.setTokens('test-jwt', null);
     expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBe('test-jwt');
     expect(service.token()).toBe('test-jwt');
     expect(service.isAuthenticated()).toBe(true);
   });
 
   it('clears token from localStorage and signal on clearToken', () => {
-    service.setToken('test-jwt');
+    service.setTokens('test-jwt', null);
     service.clearToken();
     expect(localStorage.getItem(AUTH_TOKEN_KEY)).toBeNull();
     expect(service.token()).toBeNull();
