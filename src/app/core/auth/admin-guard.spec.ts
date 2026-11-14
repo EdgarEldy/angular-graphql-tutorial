@@ -32,7 +32,7 @@ describe('adminGuard', () => {
     expect(result).toBe(true);
   });
 
-  it('redirects to / when isAdmin is false', () => {
+  it('redirects to /not-allowed when isAdmin is false', () => {
     isAdmin.set(false);
 
     const result = TestBed.runInInjectionContext(() => adminGuard(
@@ -43,7 +43,7 @@ describe('adminGuard', () => {
     expect(result).not.toBe(true);
 
     const router = TestBed.inject(Router);
-    const expected = router.createUrlTree(['/']);
+    const expected = router.createUrlTree(['/not-allowed']);
 
     expect((result as UrlTree).toString()).toBe(expected.toString());
   });
