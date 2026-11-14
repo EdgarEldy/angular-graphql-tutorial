@@ -8,21 +8,23 @@ import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
 import { Auth } from '../../../../core/auth/auth';
+import { AuthService } from '../../../../core/auth/auth.service';
 
 /**
  * Dashboard page -- the authenticated landing screen (route: /dashboard).
  *
  * Acts as a hub that surfaces the most useful information at a glance:
- * - A personalised welcome derived from the JWT claims sub field.
+ * - A personalised welcome derived from the signed-in user's first name.
  * - Four KPI cards (Categories, Products, Customers, Orders) whose values
  *   are placeholders on this branch; downstream feature branches will swap
  *   them for live totals once their respective services are wired.
  * - Quick-access tiles that navigate to each section of the application.
- * - A session-info panel driven by Auth signals, requiring no extra HTTP call.
+ * - A session-info panel showing user details and token expiry.
  *
- * The session panel only shows the username (from JWT sub) and token expiry
- * on this branch. Email and roles are populated on feature/auth once
- * AuthService is available.
+ * Both Auth (for token expiry) and AuthService (for the full user object)
+ * are injected here. Auth provides the exp claim directly from the JWT, which
+ * avoids a redundant query just to display token lifetime. AuthService
+ * provides the loaded user fields (name, email, roles).
  */
 @Component({
   selector: 'app-dashboard',
@@ -32,28 +34,39 @@ import { Auth } from '../../../../core/auth/auth';
   styleUrl: './dashboard.page.scss',
 })
 export class DashboardPage {
-  protected readonly auth = inject(Auth);
+  private readonly auth = inject(Auth);
+  protected readonly authService = inject(AuthService);
 
   /**
    * Greeting name shown in the page title.
    *
-   * Reads the sub claim from the JWT, which holds the username. Falls back to
-   * 'there' while the signal is null (unauthenticated or token not yet decoded).
-   * On feature/auth this is replaced with first_name from AuthService.
+   * Prefers firstName from the loaded session user. Falls back to the email
+   * local-part if first name is missing, then 'there' while the user is not
+   * yet loaded (e.g. the me query is still in-flight on first render).
    *
    * @returns display name string.
    */
-  protected readonly displayName = computed(() => this.auth.claims()?.sub ?? 'there');
+  protected readonly displayName = computed(() => {
+    const u = this.authService.currentUser();
+    if (!u) return 'there';
+    return u.firstName ?? u.email.split('@')[0];
+  });
 
   /**
    * Two-character uppercase initials for the session panel avatar.
-   * Taken from the first two characters of the JWT sub claim (username).
    *
-   * @returns e.g. "JD" for sub "jdoe", or "U" before load.
+   * Built from firstName + lastName initials when both are present, otherwise
+   * the first two characters of the email local-part.
+   *
+   * @returns e.g. "JD" for John Doe, or "JO" for john@example.com.
    */
-  protected readonly initials = computed(
-    () => this.auth.claims()?.sub?.slice(0, 2).toUpperCase() ?? 'U',
-  );
+  protected readonly initials = computed(() => {
+    const u = this.authService.currentUser();
+    if (!u) return 'U';
+    const first = u.firstName?.charAt(0) ?? '';
+    const last = u.lastName?.charAt(0) ?? '';
+    return (first + last).toUpperCase() || u.email.slice(0, 2).toUpperCase();
+  });
 
   /**
    * Human-readable remaining lifetime of the JWT access token.
@@ -74,28 +87,33 @@ export class DashboardPage {
   });
 
   /**
-   * Username shown in the session panel.
-   * Comes from JWT sub on this branch; replaced with currentUser on feature/auth.
+   * Full name shown in the session panel (first + last).
    *
-   * @returns username string or '--' when unauthenticated.
+   * @returns full name string or '--' when no user is loaded.
    */
-  protected readonly sessionUsername = computed(() => this.auth.claims()?.sub ?? '--');
+  protected readonly sessionUsername = computed(() => {
+    const u = this.authService.currentUser();
+    if (!u) return '--';
+    return [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email;
+  });
 
   /**
    * Email shown in the session panel.
-   * Always '--' on this branch; replaced with currentUser.email on feature/auth.
    *
-   * @returns email string.
+   * @returns email string or '--' when no user is loaded.
    */
-  protected readonly sessionEmail = computed(() => '--');
+  protected readonly sessionEmail = computed(
+    () => this.authService.currentUser()?.email ?? '--',
+  );
 
   /**
-   * Role list shown in the session panel.
-   * Always empty on this branch; populated from AuthService on feature/auth.
+   * Role name strings shown as tags in the session panel.
    *
-   * @returns array of role name strings.
+   * @returns array of role name strings, e.g. ["ADMIN", "USER"].
    */
-  protected readonly sessionRoles = computed((): string[] => []);
+  protected readonly sessionRoles = computed(
+    () => this.authService.currentUser()?.roles.map((r) => r.roleName) ?? [],
+  );
 
   /** Today's date formatted for the page subtitle. */
   protected readonly today = new Date().toLocaleDateString('en-US', {
