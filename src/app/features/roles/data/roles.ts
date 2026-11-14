@@ -3,9 +3,6 @@ import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import type { QueryRef } from 'apollo-angular';
 import {
-  AssignPermissionToRoleDocument,
-  type AssignPermissionToRoleMutation,
-  type AssignPermissionToRoleMutationVariables,
   CreatePermissionDocument,
   type CreatePermissionMutation,
   type CreatePermissionMutationVariables,
@@ -22,12 +19,12 @@ import {
   type GetPermissionsQuery,
   GetRolesDocument,
   type GetRolesQuery,
-  RemovePermissionFromRoleDocument,
-  type RemovePermissionFromRoleMutation,
-  type RemovePermissionFromRoleMutationVariables,
   UpdateRoleDocument,
   type UpdateRoleMutation,
   type UpdateRoleMutationVariables,
+  UpdateRolePermissionsDocument,
+  type UpdateRolePermissionsMutation,
+  type UpdateRolePermissionsMutationVariables,
 } from '../../../core/graphql/generated/graphql';
 
 /**
@@ -156,48 +153,29 @@ export class Roles {
   }
 
   /**
-   * Calls the `assignPermissionToRole` mutation.
+   * Calls the `updateRolePermissions` mutation to assign or remove permissions
+   * in one round-trip.
    *
-   * Returns the updated Role so Apollo normalises the new permissions into the
-   * cache and the role-list table and manage-permissions dialog update automatically.
+   * Pass `{ add: [permissionId] }` to assign a single permission, `{ remove:
+   * [permissionId] }` to remove one, or both arrays to swap permissions
+   * atomically. Returns the updated Role so Apollo normalises the result into
+   * the cache and the role-list table and manage-permissions dialog both update
+   * without a manual refetch.
    *
-   * @param roleId - ID of the role.
-   * @param permissionId - ID of the permission to assign.
+   * @param roleId - ID of the role whose permissions are being changed.
+   * @param input - Object with optional `add` and `remove` arrays of permission IDs.
    * @returns Observable of the raw mutation result.
    */
-  assignPermissionToRole(
-    roleId: AssignPermissionToRoleMutationVariables['roleId'],
-    permissionId: AssignPermissionToRoleMutationVariables['permissionId'],
-  ): Observable<Apollo.MutateResult<AssignPermissionToRoleMutation>> {
+  updateRolePermissions(
+    roleId: UpdateRolePermissionsMutationVariables['roleId'],
+    input: UpdateRolePermissionsMutationVariables['input'],
+  ): Observable<Apollo.MutateResult<UpdateRolePermissionsMutation>> {
     return this.apollo.mutate<
-      AssignPermissionToRoleMutation,
-      AssignPermissionToRoleMutationVariables
+      UpdateRolePermissionsMutation,
+      UpdateRolePermissionsMutationVariables
     >({
-      mutation: AssignPermissionToRoleDocument,
-      variables: { roleId, permissionId },
-      errorPolicy: 'all',
-    });
-  }
-
-  /**
-   * Calls the `removePermissionFromRole` mutation.
-   *
-   * Returns the updated Role so the cache is updated automatically.
-   *
-   * @param roleId - ID of the role.
-   * @param permissionId - ID of the permission to remove.
-   * @returns Observable of the raw mutation result.
-   */
-  removePermissionFromRole(
-    roleId: RemovePermissionFromRoleMutationVariables['roleId'],
-    permissionId: RemovePermissionFromRoleMutationVariables['permissionId'],
-  ): Observable<Apollo.MutateResult<RemovePermissionFromRoleMutation>> {
-    return this.apollo.mutate<
-      RemovePermissionFromRoleMutation,
-      RemovePermissionFromRoleMutationVariables
-    >({
-      mutation: RemovePermissionFromRoleDocument,
-      variables: { roleId, permissionId },
+      mutation: UpdateRolePermissionsDocument,
+      variables: { roleId, input },
       errorPolicy: 'all',
     });
   }

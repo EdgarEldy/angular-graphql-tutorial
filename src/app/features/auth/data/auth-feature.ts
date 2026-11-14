@@ -5,6 +5,9 @@ import {
   ActivateAccountDocument,
   type ActivateAccountMutation,
   type ActivateAccountMutationVariables,
+  RefreshTokenDocument,
+  type RefreshTokenMutation,
+  type RefreshTokenMutationVariables,
   RegisterDocument,
   type RegisterMutation,
   type RegisterMutationVariables,
@@ -14,6 +17,9 @@ import {
   ResetPasswordDocument,
   type ResetPasswordMutation,
   type ResetPasswordMutationVariables,
+  UpdateProfileDocument,
+  type UpdateProfileMutation,
+  type UpdateProfileMutationVariables,
 } from '../../../core/graphql/generated/graphql';
 
 /**
@@ -118,6 +124,49 @@ export class AuthFeature {
     return this.apollo.mutate<ResetPasswordMutation, ResetPasswordMutationVariables>({
       mutation: ResetPasswordDocument,
       variables: { token, newPassword },
+      errorPolicy: 'all',
+    });
+  }
+
+  /**
+   * Exchanges a valid refresh token for a new AuthPayload containing a fresh
+   * access token.
+   *
+   * The caller (typically the Apollo error link or a silent-renewal effect) is
+   * responsible for updating the Auth service with the new tokens after a
+   * successful exchange. This method does not touch local state.
+   *
+   * @param token - The refresh token returned by login or a previous refresh.
+   * @returns Observable of the raw mutation result.
+   */
+  refreshToken(
+    token: RefreshTokenMutationVariables['token'],
+  ): Observable<Apollo.MutateResult<RefreshTokenMutation>> {
+    return this.apollo.mutate<RefreshTokenMutation, RefreshTokenMutationVariables>({
+      mutation: RefreshTokenDocument,
+      variables: { token },
+      errorPolicy: 'all',
+    });
+  }
+
+  /**
+   * Calls the `updateProfile` mutation to let an authenticated user update
+   * their own first name, last name, or email address.
+   *
+   * All three fields are optional so the caller can send only the changed
+   * fields. The returned User is normalised into the Apollo InMemoryCache,
+   * so any other query that holds this user (e.g. the `me` query) updates
+   * automatically without a manual refetch.
+   *
+   * @param input - Fields to update: firstName, lastName, email (all optional).
+   * @returns Observable of the raw mutation result.
+   */
+  updateProfile(
+    input: UpdateProfileMutationVariables['input'],
+  ): Observable<Apollo.MutateResult<UpdateProfileMutation>> {
+    return this.apollo.mutate<UpdateProfileMutation, UpdateProfileMutationVariables>({
+      mutation: UpdateProfileDocument,
+      variables: { input },
       errorPolicy: 'all',
     });
   }

@@ -53,8 +53,11 @@ export const routes: Routes = [
       },
     ],
   },
-  // Auth pages are top-level routes so /register, /activate etc. are reachable
-  // directly and not nested under /login as children.
+  // Auth pages are top-level routes so they are reachable without the Shell wrapper.
+  // /login and /register are navigated to programmatically by guards and links.
+  // /auth/activate-account and /auth/reset-password must match the URLs the
+  // backend embeds in activation and password-reset emails; changing them would
+  // break every link already sent to users.
   {
     path: 'login',
     loadComponent: () =>
@@ -68,13 +71,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'activate',
-    loadComponent: () =>
-      import('./features/auth/pages/activate-page/activate-page.page').then(
-        (m) => m.ActivatePagePage,
-      ),
-  },
-  {
     path: 'forgot-password',
     loadComponent: () =>
       import('./features/auth/pages/forgot-password-page/forgot-password-page.page').then(
@@ -82,11 +78,26 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'reset-password',
-    loadComponent: () =>
-      import('./features/auth/pages/reset-password-page/reset-password-page.page').then(
-        (m) => m.ResetPasswordPagePage,
-      ),
+    // Nested under /auth to match the email link paths built by the backend:
+    //   /auth/activate-account?token=...
+    //   /auth/reset-password?token=...
+    path: 'auth',
+    children: [
+      {
+        path: 'activate-account',
+        loadComponent: () =>
+          import('./features/auth/pages/activate-page/activate-page.page').then(
+            (m) => m.ActivatePagePage,
+          ),
+      },
+      {
+        path: 'reset-password',
+        loadComponent: () =>
+          import('./features/auth/pages/reset-password-page/reset-password-page.page').then(
+            (m) => m.ResetPasswordPagePage,
+          ),
+      },
+    ],
   },
   {
     path: '**',
