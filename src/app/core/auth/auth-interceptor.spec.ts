@@ -28,7 +28,7 @@ describe('authInterceptor', () => {
   });
 
   it('adds Authorization header when a token is present', () => {
-    authService.setToken('my-jwt-token');
+    authService.setTokens('my-jwt-token', null);
     http.get('/graphql').subscribe();
     const req = controller.expectOne('/graphql');
     expect(req.request.headers.get('Authorization')).toBe('Bearer my-jwt-token');

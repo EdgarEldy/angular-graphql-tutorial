@@ -19,12 +19,14 @@ GraphiQL: `GET http://localhost:8080/graphiql` (dev profile only)
 
 ## Authentication
 
-- Login returns a JWT (`AuthPayload.token`). Lifetime: 1 hour. No refresh token.
-- HTTP: send as `Authorization: Bearer <token>` header.
-- WebSocket: send as `connectionParams.Authorization: "Bearer <token>"`.
+- Login returns a JWT (`AuthPayload.accessToken`). Lifetime controlled by backend config.
+- `AuthPayload` also carries `refreshToken`, `tokenType`, and `expiresIn`.
+- HTTP: send as `Authorization: Bearer <accessToken>` header.
+- WebSocket: send as `connectionParams.Authorization: "Bearer <accessToken>"`.
 - `register` creates a **disabled** account; the user cannot log in until `activateAccount` succeeds.
 - `logout` blacklists the JWT server-side. The frontend must call it before discarding the token locally.
 - On token rejection: clear session, redirect to `/login` with return URL.
+- `refreshToken(token: String!)` exchanges a valid refresh token for a new `AuthPayload`.
 
 ---
 
@@ -115,13 +117,13 @@ Fields requested: `id firstName lastName email enabled accountLocked roles { id 
 
 ---
 
-### `products(categoryId: ID, page: Int, size: Int): ProductPage!`
+### `products(categoryId: ID, productName: String, minPrice: Float, maxPrice: Float, page: Int, size: Int): ProductPage!`
 
 | | |
 |---|---|
 | Access | Enforced by backend |
-| Arguments | `categoryId` optional filter |
-| Screen | Products list (with category filter) |
+| Arguments | `categoryId` optional category filter; `productName` optional name search; `minPrice`/`maxPrice` optional price range |
+| Screen | Products list (with category, name, and price filters) |
 
 ---
 
@@ -183,10 +185,10 @@ Fields requested: `id firstName lastName email enabled accountLocked roles { id 
 | | |
 |---|---|
 | Access | Public |
-| Input | `firstName String!`, `lastName String!`, `email String!`, `password String!` |
-| Returns | `AuthPayload { token user }` |
+| Input | `firstName String!`, `lastName String!`, `email String!`, `password String!`, `confirmPassword String!` |
+| Returns | `AuthPayload { accessToken refreshToken expiresIn user }` |
 | Screen | `/register` |
-| Errors | `BAD_REQUEST` (validation, email already taken) |
+| Errors | `BAD_REQUEST` (validation, email already taken, passwords do not match) |
 | Business rule | Account is disabled until `activateAccount` is called |
 
 #### `activateAccount(token: String!): Boolean!`
@@ -204,7 +206,7 @@ Fields requested: `id firstName lastName email enabled accountLocked roles { id 
 |---|---|
 | Access | Public |
 | Input | `email String!`, `password String!` |
-| Returns | `AuthPayload { token user }` |
+| Returns | `AuthPayload { accessToken refreshToken expiresIn user }` |
 | Screen | `/login` |
 | Errors | `BAD_REQUEST` (invalid credentials, locked/disabled account) |
 
@@ -215,6 +217,15 @@ Fields requested: `id firstName lastName email enabled accountLocked roles { id 
 | Access | Authenticated |
 | Screen | Any (triggered on logout action) |
 | Note | Blacklists the JWT server-side. Call before clearing local session. |
+
+#### `refreshToken(token: String!): AuthPayload!`
+
+| | |
+|---|---|
+| Access | Public (requires a valid refresh token) |
+| Input | `token String!` (the refresh token stored after login) |
+| Returns | `AuthPayload { accessToken refreshToken expiresIn user }` |
+| Note | Exchanges a refresh token for a new access token. Use when the access token expires. |
 
 #### `requestPasswordReset(email: String!): Boolean!`
 
@@ -231,6 +242,16 @@ Fields requested: `id firstName lastName email enabled accountLocked roles { id 
 | Access | Public |
 | Screen | `/reset-password?token=` |
 | Errors | `BAD_REQUEST` (invalid/expired token) |
+
+#### `updateProfile(input: UpdateProfileInput!): User!`
+
+| | |
+|---|---|
+| Access | Authenticated |
+| Input | `firstName String`, `lastName String`, `email String` (all optional) |
+| Returns | Updated `User` |
+| Screen | Profile page |
+| Errors | `UNAUTHENTICATED`, `BAD_REQUEST` |
 
 ---
 
@@ -256,14 +277,10 @@ Errors: `FORBIDDEN`, `NOT_FOUND`
 The UI must not allow deleting the current user's own account.
 Errors: `FORBIDDEN`, `NOT_FOUND`
 
-#### `assignRoleToUser(userId: ID!, roleId: ID!): User!`
+#### `updateUserRoles(id: ID!, input: UpdateUserRolesInput!): User!`
 
+Batch role assignment/removal. `input.add` and `input.remove` are arrays of role IDs (both optional).
 Returns the updated `User` with all roles. Update the cache from the returned user.
-Errors: `FORBIDDEN`, `NOT_FOUND`
-
-#### `removeRoleFromUser(userId: ID!, roleId: ID!): User!`
-
-Returns the updated `User` with remaining roles.
 Errors: `FORBIDDEN`, `NOT_FOUND`
 
 ---
@@ -284,13 +301,10 @@ Input: `resource String!`, `action String!`
 
 #### `deletePermission(id: ID!): Boolean!`
 
-#### `assignPermissionToRole(roleId: ID!, permissionId: ID!): Role!`
+#### `updateRolePermissions(roleId: ID!, input: UpdateRolePermissionsInput!): Role!`
 
+Batch permission assignment/removal. `input.add` and `input.remove` are arrays of permission IDs (both optional).
 Returns the updated `Role` with all permissions.
-
-#### `removePermissionFromRole(roleId: ID!, permissionId: ID!): Role!`
-
-Returns the updated `Role` with remaining permissions.
 
 ---
 
@@ -429,3 +443,6 @@ fragment OrderFields on Order {
 5. `logout` must call the mutation before discarding the token (best-effort; clear locally even if the call fails).
 6. IDs are strings, never cast to numbers.
 7. `unitPrice` and `total` (Float) are displayed with the currency pipe; do not do arithmetic on them except for the order preview.
+8. `register` requires `confirmPassword` matching `password`; validate on the client before submitting.
+9. `updateUserRoles` accepts `add: [ID!]` and `remove: [ID!]`; to add one role send `{ add: [roleId] }`; to remove send `{ remove: [roleId] }`.
+10. `updateRolePermissions` accepts `add: [ID!]` and `remove: [ID!]`; same pattern as above.
