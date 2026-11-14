@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree, provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import type { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { authGuard } from './auth-guard';
+import { authGuard } from './auth.guard';
 import { AuthService } from './auth.service';
 
 describe('authGuard', () => {
@@ -34,7 +34,7 @@ describe('authGuard', () => {
     expect(result).toBe(true);
   });
 
-  it('redirects to /login with returnUrl when isAuthenticated is false', () => {
+  it('redirects to /auth/login with returnUrl when isAuthenticated is false', () => {
     isAuthenticated.set(false);
 
     const result = TestBed.runInInjectionContext(() =>
@@ -48,7 +48,7 @@ describe('authGuard', () => {
     expect(result).not.toBe(true);
 
     const router = TestBed.inject(Router);
-    const expected = router.createUrlTree(['/login'], {
+    const expected = router.createUrlTree(['/auth/login'], {
       queryParams: { returnUrl: '/dashboard' },
     });
 
