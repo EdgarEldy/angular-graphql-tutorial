@@ -3,6 +3,7 @@ import { Shell } from './core/layout/shell/shell';
 import { NotFound } from './features/not-found/not-found';
 import { NotAllowed } from './features/not-allowed/not-allowed';
 import { authGuard } from './core/auth/auth.guard';
+import { adminGuard } from './core/auth/admin-guard';
 
 /**
  * Application route configuration.
@@ -98,11 +99,12 @@ export const routes: Routes = [
           ),
       },
 
-      // Administration area: /users, /roles and /permissions require the ADMIN role.
+      // Administration area: /users and /roles require the ADMIN role.
       // A pathless parent groups the admin routes without adding a URL segment.
-      // roleGuard is added here on this branch to enforce RBAC at the route level.
+      // adminGuard runs after authGuard so currentUser is already populated.
       {
         path: '',
+        canActivate: [adminGuard],
         children: [
           {
             path: 'users',
