@@ -9,11 +9,11 @@ import { AuthService } from './auth.service';
  * redirects unauthenticated users to `/login`. By the time this guard runs,
  * `AuthService.currentUser` is non-null and `isAdmin` can be read directly.
  *
- * A non-admin user is redirected to the root path. The backend will also
- * return `FORBIDDEN` for any admin mutation they manage to invoke, which the
- * error link surfaces as a snackbar notification.
+ * A non-admin user is redirected to /not-allowed, which renders the 403
+ * error page. The backend will also return FORBIDDEN for any admin mutation
+ * they manage to invoke, which the error link surfaces as a snackbar.
  *
- * @returns `true` to activate, or a `UrlTree` redirecting to `/`.
+ * @returns `true` to activate, or a `UrlTree` redirecting to `/not-allowed`.
  */
 export const adminGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -23,5 +23,5 @@ export const adminGuard: CanActivateFn = () => {
     return true;
   }
 
-  return router.createUrlTree(['/']);
+  return router.createUrlTree(['/not-allowed']);
 };
