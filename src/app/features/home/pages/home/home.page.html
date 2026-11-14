@@ -3,8 +3,8 @@
   <!-- Page header -->
   <div class="dash-header">
     <div>
-      <h1 class="dash-title">Welcome</h1>
-      <p class="dash-sub">{{ today }}</p>
+      <h1 class="dash-title">Good morning, {{ displayName() }}</h1>
+      <p class="dash-sub">Overview for {{ today }}</p>
     </div>
   </div>
 
@@ -40,6 +40,54 @@
         <mat-icon class="tile-arrow" fontSet="material-icons-outlined">chevron_right</mat-icon>
       </a>
     }
+  </div>
+
+  <!-- Session info -->
+  <p class="section-label">Your session</p>
+  <div class="session-card">
+
+    <div class="sess-row">
+      <span class="sess-key">Name</span>
+      <span class="sess-val">
+        @if (authService.currentUser(); as u) {
+          {{ u.firstName }} {{ u.lastName }}
+        } @else {
+          <span class="sess-empty">--</span>
+        }
+      </span>
+    </div>
+
+    <div class="sess-row">
+      <span class="sess-key">Email</span>
+      <span class="sess-val">{{ authService.currentUser()?.email ?? '--' }}</span>
+    </div>
+
+    <div class="sess-row">
+      <span class="sess-key">Roles</span>
+      <span class="sess-val sess-tags">
+        @for (role of roles(); track role) {
+          <!-- role tag: accent for ADMIN, neutral for others -->
+          <span class="tag" [class.tag-accent]="role === 'ADMIN'">{{ role }}</span>
+        }
+        @if (roles().length === 0) {
+          <span class="sess-empty">None</span>
+        }
+      </span>
+    </div>
+
+    <div class="sess-row">
+      <span class="sess-key">Token expires</span>
+      <span class="sess-val sess-expiry">
+        <!-- green dot = valid, red dot = expired/absent -->
+        <span
+          class="expiry-dot"
+          [class.expiry-ok]="authService.isAuthenticated()"
+          [class.expiry-bad]="!authService.isAuthenticated()">
+        </span>
+        {{ tokenExpiry() }}
+      </span>
+    </div>
+
   </div>
 
 </div>
