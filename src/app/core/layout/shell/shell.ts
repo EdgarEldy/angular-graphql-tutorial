@@ -189,7 +189,7 @@ export class Shell {
    * session before clearing local state.
    */
   protected logout(): void {
-    this.auth.setTokens(null, null);
+    this.auth.clearToken();
     void this.router.navigate(['/auth/login']);
   }
 
