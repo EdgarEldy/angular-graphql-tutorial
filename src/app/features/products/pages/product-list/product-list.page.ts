@@ -15,6 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { CurrencyPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -66,6 +67,7 @@ const DEFAULT_PAGE_SIZE = 10;
     MatTooltipModule,
     MatSelectModule,
     MatFormFieldModule,
+    MatInputModule,
     CurrencyPipe,
     PageHeader,
     Loading,
@@ -98,6 +100,27 @@ export class ProductListPage implements OnInit {
    * to the watchProducts QueryRef variables via refetch().
    */
   readonly selectedCategoryId = signal<string | null>(null);
+
+  /**
+   * Product name search term for the backend LIKE filter.
+   *
+   * null or empty string means no name filter. Updated by onProductNameChange().
+   */
+  readonly productNameFilter = signal<string | null>(null);
+
+  /**
+   * Minimum unit price filter value (inclusive).
+   *
+   * null means no lower price bound. Updated by onMinPriceChange().
+   */
+  readonly minPriceFilter = signal<number | null>(null);
+
+  /**
+   * Maximum unit price filter value (inclusive).
+   *
+   * null means no upper price bound. Updated by onMaxPriceChange().
+   */
+  readonly maxPriceFilter = signal<number | null>(null);
 
   /**
    * Category options list for the filter MatSelect.
@@ -137,6 +160,9 @@ export class ProductListPage implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly queryRef = this.productsService.watchProducts(
+    null,
+    null,
+    null,
     null,
     0,
     DEFAULT_PAGE_SIZE,
@@ -194,7 +220,7 @@ export class ProductListPage implements OnInit {
    * Handles Material paginator page events.
    *
    * Updates the local page signals and calls refetch() with the new variables,
-   * preserving the active category filter.
+   * preserving all active filters.
    *
    * @param event - The paginator page event containing pageIndex and pageSize.
    */
@@ -203,6 +229,9 @@ export class ProductListPage implements OnInit {
     this.pageSize.set(event.pageSize);
     void this.queryRef.refetch({
       categoryId: this.selectedCategoryId(),
+      productName: this.productNameFilter(),
+      minPrice: this.minPriceFilter(),
+      maxPrice: this.maxPriceFilter(),
       page: event.pageIndex,
       size: event.pageSize,
     });
@@ -224,6 +253,80 @@ export class ProductListPage implements OnInit {
     this.pageIndex.set(0);
     void this.queryRef.refetch({
       categoryId,
+      productName: this.productNameFilter(),
+      minPrice: this.minPriceFilter(),
+      maxPrice: this.maxPriceFilter(),
+      page: 0,
+      size: this.pageSize(),
+    });
+  }
+
+  /**
+   * Handles product name search input changes.
+   *
+   * Converts empty string to null so the backend receives no filter rather
+   * than an empty LIKE pattern. Resets page to 0 to avoid an empty result
+   * when the new filter set is smaller than the current page offset.
+   *
+   * @param value - The typed search term, or empty string when cleared.
+   */
+  onProductNameChange(value: string): void {
+    // Convert empty string to null: the backend treats null as "no filter"
+    // but an empty string would be sent as a LIKE '%' query, wasting work.
+    const productName = value.trim() || null;
+    this.productNameFilter.set(productName);
+    this.pageIndex.set(0);
+    void this.queryRef.refetch({
+      categoryId: this.selectedCategoryId(),
+      productName,
+      minPrice: this.minPriceFilter(),
+      maxPrice: this.maxPriceFilter(),
+      page: 0,
+      size: this.pageSize(),
+    });
+  }
+
+  /**
+   * Handles minimum price filter changes from the number input.
+   *
+   * NaN (empty input) is converted to null so the backend receives no lower
+   * bound. Resets page to 0 to avoid a stale page offset.
+   *
+   * @param value - The raw string value from the input element.
+   */
+  onMinPriceChange(value: string): void {
+    // parseFloat returns NaN for empty/non-numeric input; treat that as no filter.
+    const minPrice = value ? parseFloat(value) : null;
+    this.minPriceFilter.set(isNaN(minPrice as number) ? null : minPrice);
+    this.pageIndex.set(0);
+    void this.queryRef.refetch({
+      categoryId: this.selectedCategoryId(),
+      productName: this.productNameFilter(),
+      minPrice: this.minPriceFilter(),
+      maxPrice: this.maxPriceFilter(),
+      page: 0,
+      size: this.pageSize(),
+    });
+  }
+
+  /**
+   * Handles maximum price filter changes from the number input.
+   *
+   * NaN (empty input) is converted to null so the backend receives no upper
+   * bound. Resets page to 0 to avoid a stale page offset.
+   *
+   * @param value - The raw string value from the input element.
+   */
+  onMaxPriceChange(value: string): void {
+    // parseFloat returns NaN for empty/non-numeric input; treat that as no filter.
+    const maxPrice = value ? parseFloat(value) : null;
+    this.maxPriceFilter.set(isNaN(maxPrice as number) ? null : maxPrice);
+    this.pageIndex.set(0);
+    void this.queryRef.refetch({
+      categoryId: this.selectedCategoryId(),
+      productName: this.productNameFilter(),
+      minPrice: this.minPriceFilter(),
+      maxPrice: this.maxPriceFilter(),
       page: 0,
       size: this.pageSize(),
     });
