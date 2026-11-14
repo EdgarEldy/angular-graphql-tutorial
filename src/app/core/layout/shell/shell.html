@@ -1,52 +1,140 @@
-<!-- Fixed sidebar + sticky toolbar layout replacing mat-sidenav-container.
-     The sidebar is always visible on desktop; a future responsive pass
-     can add a hamburger toggle for mobile. -->
-<div class="app-shell">
+<div class="app">
 
-  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <!-- Sidebar: fixed 248 px, theme-aware background -->
   <aside class="sidebar">
-    <!-- Sidebar brand: entire block is a home link so both icon and title are clickable -->
+
+    <!-- Brand: clicking the logo navigates to the home route -->
     <a class="sb-brand" routerLink="/">
       <div class="brand-icon">
-        <mat-icon>hub</mat-icon>
+        <mat-icon fontSet="material-icons-outlined">hub</mat-icon>
       </div>
       <span class="brand-name">GraphQL Tutorial</span>
     </a>
 
     <nav class="sb-nav">
       <span class="sec-label">Menu</span>
+
       @for (item of navItems; track item.route) {
-        <a class="nav-item"
-           [routerLink]="item.route"
-           routerLinkActive="active"
-           [routerLinkActiveOptions]="{ exact: false }">
-          <mat-icon>{{ item.icon }}</mat-icon>
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }">
+          <mat-icon fontSet="material-icons-outlined">{{ item.icon }}</mat-icon>
           {{ item.label }}
         </a>
       }
+
+      <!-- Administration section: visible to ADMIN role only -->
+      @if (isAdmin()) {
+        <div class="sb-div"></div>
+        <span class="sec-label">Administration</span>
+
+        @for (item of adminItems; track item.route) {
+          <a
+            class="nav-item"
+            [routerLink]="item.route"
+            routerLinkActive="active">
+            <mat-icon fontSet="material-icons-outlined">{{ item.icon }}</mat-icon>
+            {{ item.label }}
+          </a>
+        }
+      }
     </nav>
+
+    <div class="sb-footer">
+      <button class="nav-logout" (click)="logout()">
+        <mat-icon fontSet="material-icons-outlined">logout</mat-icon>
+        Sign out
+      </button>
+    </div>
+
   </aside>
 
-  <!-- ── Main area ─────────────────────────────────────────────── -->
+  <!-- Main area: sticky toolbar + scrollable content -->
   <div class="app-main">
+
     <header class="toolbar">
-      <!-- Title links to / so the user can return home from any page -->
-      <a class="tb-title" routerLink="/">GraphQL Tutorial</a>
+      <span class="tb-title">{{ pageTitle() }}</span>
+
       <div class="tb-actions">
-        <!-- Theme toggle: sets data-theme on <html> so all CSS token
-             blocks (prefers-color-scheme and [data-theme]) stay in sync.
-             The initial icon reflects the actual current theme (OS or explicit). -->
-        <button class="theme-btn"
-                (click)="toggleTheme()"
-                [title]="darkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
-          <mat-icon>{{ darkMode() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+
+        <button
+          class="theme-btn"
+          (click)="toggleTheme()"
+          [title]="darkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+          <mat-icon fontSet="material-icons-outlined">
+            {{ darkMode() ? 'light_mode' : 'dark_mode' }}
+          </mat-icon>
         </button>
+
+        <div class="notif-wrap">
+          <button class="icon-btn" aria-label="Notifications">
+            <mat-icon fontSet="material-icons-outlined">notifications_none</mat-icon>
+          </button>
+          <div class="notif-dot"></div>
+        </div>
+
+        <!-- Profile button: stopPropagation prevents document:click from closing the dropdown immediately -->
+        <button
+          class="profile-btn"
+          (click)="toggleProfile($event)"
+          aria-label="Open profile menu"
+          aria-haspopup="true"
+          [attr.aria-expanded]="profileOpen()">
+          <div class="avatar">{{ initials() }}</div>
+          <div class="profile-info">
+            <div class="profile-name">{{ displayName() }}</div>
+            <div class="profile-role">{{ userRole() }}</div>
+          </div>
+          <mat-icon class="chevron" fontSet="material-icons-outlined">expand_more</mat-icon>
+        </button>
+
       </div>
+
+      @if (profileOpen()) {
+        <div
+          class="dropdown"
+          role="dialog"
+          aria-label="Profile menu"
+          tabindex="-1"
+          (click)="$event.stopPropagation()"
+          (keydown)="$event.stopPropagation()">
+          <div class="dd-hdr">
+            <div class="dd-name">{{ displayName() }}</div>
+            <div class="dd-email">{{ sessionEmail() }}</div>
+          </div>
+          <button class="dd-item" [routerLink]="'/profile'" (click)="profileOpen.set(false)">
+            <mat-icon fontSet="material-icons-outlined">person_outline</mat-icon>
+            Profile
+          </button>
+          <div class="dd-div"></div>
+          <button class="dd-item danger" (click)="logout()">
+            <mat-icon fontSet="material-icons-outlined">logout</mat-icon>
+            Sign out
+          </button>
+        </div>
+      }
+
     </header>
 
     <main class="content">
       <router-outlet />
     </main>
+
+    <footer class="app-footer">
+      <p>
+        &copy; 2026 Made with &#10084;&#65039; in Mauritius by
+        <a
+          href="https://github.com/EdgarEldy"
+          target="_blank"
+          rel="noopener noreferrer">
+          EdgarEldy
+        </a>.
+        Tous droits réservés.
+      </p>
+    </footer>
+
   </div>
 
 </div>
