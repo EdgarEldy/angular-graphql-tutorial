@@ -1,21 +1,21 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { RouterModule } from '@angular/router';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 import { ApolloTestingModule } from 'apollo-angular/testing';
-import { HomePage } from './home.page';
 
-describe('HomePage', () => {
-  let component: HomePage;
-  let fixture: ComponentFixture<HomePage>;
+import { DashboardPage } from './dashboard.page';
+
+describe('DashboardPage', () => {
+  let component: DashboardPage;
+  let fixture: ComponentFixture<DashboardPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      // ApolloTestingModule satisfies Apollo injection in AuthService.
-      // RouterModule.forRoot([]) satisfies RouterLink in the template.
-      imports: [HomePage, ApolloTestingModule, RouterModule.forRoot([]), NoopAnimationsModule],
+      imports: [DashboardPage, ApolloTestingModule],
+      // RouterLink in the template requires the router to be available
+      providers: [provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(HomePage);
+    fixture = TestBed.createComponent(DashboardPage);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
@@ -30,15 +30,15 @@ describe('HomePage', () => {
     expect(cards.length).toBe(4);
   });
 
-  it('should render six quick-access tiles', () => {
+  it('should render four quick-access tiles', () => {
     fixture.detectChanges();
     const tiles = fixture.nativeElement.querySelectorAll('.tile');
-    expect(tiles.length).toBe(6);
+    expect(tiles.length).toBe(4);
   });
 
-  it('should show -- placeholder when no user is signed in', () => {
+  it('should show placeholder greeting when no user is signed in', () => {
     fixture.detectChanges();
-    // authService.currentUser() is null in tests (no login call) so displayName() returns 'there'
+    // displayName() returns 'there' when no token is present (Auth.claims() is null)
     const title: HTMLElement = fixture.nativeElement.querySelector('.dash-title');
     expect(title.textContent).toContain('there');
   });

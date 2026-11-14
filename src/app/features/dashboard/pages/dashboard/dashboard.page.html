@@ -20,6 +20,9 @@
             </div>
           </div>
           <div class="kpi-value">{{ kpi.value }}</div>
+          @if (kpi.trend) {
+            <div class="kpi-trend">{{ kpi.trend }}</div>
+          }
         </div>
       }
     </div>
@@ -47,29 +50,23 @@
   <div class="session-card">
 
     <div class="sess-row">
-      <span class="sess-key">Name</span>
-      <span class="sess-val">
-        @if (authService.currentUser(); as u) {
-          {{ u.firstName }} {{ u.lastName }}
-        } @else {
-          <span class="sess-empty">--</span>
-        }
-      </span>
+      <span class="sess-key">Username</span>
+      <span class="sess-val">{{ sessionUsername() }}</span>
     </div>
 
     <div class="sess-row">
       <span class="sess-key">Email</span>
-      <span class="sess-val">{{ authService.currentUser()?.email ?? '--' }}</span>
+      <span class="sess-val">{{ sessionEmail() }}</span>
     </div>
 
     <div class="sess-row">
       <span class="sess-key">Roles</span>
       <span class="sess-val sess-tags">
-        @for (role of roles(); track role) {
+        @for (role of sessionRoles(); track role) {
           <!-- role tag: accent for ADMIN, neutral for others -->
           <span class="tag" [class.tag-accent]="role === 'ADMIN'">{{ role }}</span>
         }
-        @if (roles().length === 0) {
+        @if (sessionRoles().length === 0) {
           <span class="sess-empty">None</span>
         }
       </span>
@@ -78,11 +75,11 @@
     <div class="sess-row">
       <span class="sess-key">Token expires</span>
       <span class="sess-val sess-expiry">
-        <!-- green dot = valid, red dot = expired/absent -->
+        <!-- green dot = valid, red dot = expired -->
         <span
           class="expiry-dot"
-          [class.expiry-ok]="authService.isAuthenticated()"
-          [class.expiry-bad]="!authService.isAuthenticated()">
+          [class.expiry-ok]="auth.isAuthenticated()"
+          [class.expiry-bad]="!auth.isAuthenticated()">
         </span>
         {{ tokenExpiry() }}
       </span>
