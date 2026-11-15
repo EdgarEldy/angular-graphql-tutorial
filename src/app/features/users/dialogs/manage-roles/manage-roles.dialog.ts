@@ -14,6 +14,7 @@ import { Notification } from '../../../../core/notification/notification';
 import { mapError } from '../../../../core/graphql/error-mapper';
 import {
   type RoleFieldsFragment,
+  type UpdateUserRolesInput,
   type UserFieldsFragment,
 } from '../../../../core/graphql/generated/graphql';
 
@@ -103,16 +104,18 @@ export class ManageRolesDialog {
   /**
    * Assigns the selected role to the user.
    *
-   * The mutation returns the updated User which is normalised into the cache.
-   * We update the local user signal to reflect the new roles immediately in the
-   * chip list without waiting for a cache read.
+   * Uses `updateUserRoles` with `{ add: [roleId] }` as required by the new
+   * batch API. The mutation returns the updated User which is normalised into
+   * the cache; we also update the local user signal for immediate chip feedback.
    */
   addRole(): void {
     const roleId = this.addRoleControl.value;
     if (!roleId || this.mutating()) return;
 
     this.mutating.set(true);
-    this.usersService.assignRoleToUser(this.user().id, roleId).subscribe({
+    // add: [roleId] batches a single assignment -- the array allows future multi-select
+    const input: UpdateUserRolesInput = { add: [roleId] };
+    this.usersService.updateUserRoles(this.user().id, input).subscribe({
       next: (result) => {
         this.mutating.set(false);
         // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
@@ -120,7 +123,7 @@ export class ManageRolesDialog {
           this.notification.error(mapError(result.error as Error).message);
           return;
         }
-        const updatedUser = result.data?.assignRoleToUser;
+        const updatedUser = result.data?.updateUserRoles;
         if (updatedUser) {
           this.user.set(updatedUser);
           this.addRoleControl.reset();
@@ -136,15 +139,18 @@ export class ManageRolesDialog {
   /**
    * Removes a role from the user.
    *
-   * Updates the local user signal from the mutation result so the chips update
-   * without a refetch.
+   * Uses `updateUserRoles` with `{ remove: [roleId] }` per the batch API
+   * contract. Updates the local user signal from the mutation result so the
+   * chips update without a refetch.
    *
    * @param role - The role to remove.
    */
   removeRole(role: { id: string; roleName: string }): void {
     if (this.mutating()) return;
     this.mutating.set(true);
-    this.usersService.removeRoleFromUser(this.user().id, role.id).subscribe({
+    // remove: [role.id] targets a single role -- same batch input, different array
+    const input: UpdateUserRolesInput = { remove: [role.id] };
+    this.usersService.updateUserRoles(this.user().id, input).subscribe({
       next: (result) => {
         this.mutating.set(false);
         // result.error is the Apollo v4 singular error (replaces v3 result.errors[])
@@ -152,7 +158,7 @@ export class ManageRolesDialog {
           this.notification.error(mapError(result.error as Error).message);
           return;
         }
-        const updatedUser = result.data?.removeRoleFromUser;
+        const updatedUser = result.data?.updateUserRoles;
         if (updatedUser) {
           this.user.set(updatedUser);
         }

@@ -92,8 +92,10 @@ export class AuthService {
       .pipe(
         tap((result) => {
           const payload = result.data?.login;
-          if (payload?.token) {
-            this.auth.setToken(payload.token);
+          if (payload?.accessToken) {
+            // accessToken is the JWT sent with every API request; refreshToken
+            // is stored separately for silent renewal when the access token expires.
+            this.auth.setTokens(payload.accessToken, payload.refreshToken);
             this._session.set(payload.user);
             // Reconnect the WS so the next subscription uses the new token.
             this.wsClientService.reconnect();
@@ -163,6 +165,21 @@ export class AuthService {
         }),
         map(() => void 0),
       );
+  }
+
+  /**
+   * Replaces the in-memory session user after a profile mutation.
+   *
+   * `updateProfile` returns the updated User from the server. Calling this
+   * method keeps the session signal consistent with what the backend persisted
+   * without a full `me` refetch. The shell toolbar, avatar initials, and any
+   * other computed signal derived from `currentUser` update automatically
+   * because Angular signals propagate synchronously.
+   *
+   * @param user - The updated user object returned by the updateProfile mutation.
+   */
+  updateSessionUser(user: SessionUser): void {
+    this._session.set(user);
   }
 
   /**

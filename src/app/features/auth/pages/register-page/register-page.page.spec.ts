@@ -63,6 +63,7 @@ describe('RegisterPagePage', () => {
       lastName: 'Doe',
       email: 'jane@example.com',
       password: 'password123',
+      confirmPassword: 'password123',
     });
     component.submit();
     expect(component.registered()).toBe(true);
@@ -79,6 +80,7 @@ describe('RegisterPagePage', () => {
       lastName: 'Doe',
       email: 'jane@example.com',
       password: 'password123',
+      confirmPassword: 'password123',
     });
     component.submit();
     // toBe(false) is the Vitest equivalent of Jasmine's toBeFalse()
