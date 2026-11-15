@@ -7,7 +7,7 @@ import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { UpdateProfileDialog, UpdateProfileDialogData } from './update-profile.dialog';
 import { AuthFeature } from '../../data/auth-feature';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { NotificationService } from '../../../../core/notification/notification.service';
+import { Notification } from '../../../../core/notification/notification';
 
 const dialogData: UpdateProfileDialogData = {
   firstName: 'Alice',
@@ -21,7 +21,7 @@ describe('UpdateProfileDialog', () => {
 
   const authFeatureMock = { updateProfile: vi.fn() };
   const authServiceMock = { updateSessionUser: vi.fn() };
-  const notificationMock = { error: vi.fn() };
+  const notificationMock = { error: vi.fn(), success: vi.fn() };
   const dialogRefMock = { close: vi.fn() };
 
   beforeEach(async () => {
@@ -33,7 +33,7 @@ describe('UpdateProfileDialog', () => {
         provideRouter([]),
         { provide: AuthFeature, useValue: authFeatureMock },
         { provide: AuthService, useValue: authServiceMock },
-        { provide: NotificationService, useValue: notificationMock },
+        { provide: Notification, useValue: notificationMock },
         { provide: MatDialogRef, useValue: dialogRefMock },
         { provide: MAT_DIALOG_DATA, useValue: dialogData },
       ],

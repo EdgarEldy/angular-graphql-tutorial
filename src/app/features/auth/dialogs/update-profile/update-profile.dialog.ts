@@ -18,7 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthFeature } from '../../data/auth-feature';
 import { AuthService, SessionUser } from '../../../../core/auth/auth.service';
-import { NotificationService } from '../../../../core/notification/notification.service';
+import { Notification } from '../../../../core/notification/notification';
 import { mapError } from '../../../../core/graphql/error-mapper';
 
 /** Shape of the data passed to this dialog from ProfilePagePage. */
@@ -67,7 +67,7 @@ export class UpdateProfileDialog {
   private readonly authFeature = inject(AuthFeature);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly notification = inject(NotificationService);
+  private readonly notification = inject(Notification);
   private readonly dialogRef = inject(MatDialogRef<UpdateProfileDialog>);
   protected readonly data = inject<UpdateProfileDialogData>(MAT_DIALOG_DATA);
 
