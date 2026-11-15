@@ -83,11 +83,6 @@ describe('UserFormDialog', () => {
     expect(component.form.invalid).toBe(true);
 
     // The [disabled] binding on the submit button reflects form.invalid
-    const buttons = fixture.nativeElement.querySelectorAll('button');
-    const submitBtn = Array.from(buttons as NodeListOf<HTMLButtonElement>).find(
-      (b) => b.type !== 'button' || b.textContent?.includes('Create'),
-    );
-
     // form.invalid is the source of truth; DOM binding verification is secondary
     expect(component.form.invalid).toBe(true);
     // submit() returns early when form is invalid

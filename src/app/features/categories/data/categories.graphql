@@ -1,0 +1,40 @@
+fragment CategoryFields on Category {
+  id
+  categoryName
+}
+
+query GetCategories($page: Int, $size: Int) {
+  categories(page: $page, size: $size) {
+    content {
+      ...CategoryFields
+    }
+    totalElements
+    totalPages
+    page
+    size
+  }
+}
+
+query GetCategoryOptions {
+  categories(page: 0, size: 1000) {
+    content {
+      ...CategoryFields
+    }
+  }
+}
+
+mutation CreateCategory($input: CategoryInput!) {
+  createCategory(input: $input) {
+    ...CategoryFields
+  }
+}
+
+mutation UpdateCategory($id: ID!, $input: CategoryInput!) {
+  updateCategory(id: $id, input: $input) {
+    ...CategoryFields
+  }
+}
+
+mutation DeleteCategory($id: ID!) {
+  deleteCategory(id: $id)
+}
