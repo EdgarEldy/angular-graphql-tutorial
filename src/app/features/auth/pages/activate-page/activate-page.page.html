@@ -29,13 +29,13 @@
         @case ('success') {
           <div class="activation-status success" role="status">
             <p class="status-text">Your account has been activated. You can now sign in.</p>
-            <a routerLink="/login" class="btn btn-primary btn-full">Go to login</a>
+            <a routerLink="/auth/login" class="btn btn-primary btn-full">Go to login</a>
           </div>
         }
         @case ('error') {
           <div class="activation-status error" role="alert">
             <p class="status-text">{{ errorMessage() }}</p>
-            <a routerLink="/login" class="auth-link">Back to login</a>
+            <a routerLink="/auth/login" class="auth-link">Back to login</a>
           </div>
         }
       }

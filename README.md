@@ -56,7 +56,7 @@ Reproduced from `src/main/resources/graphql/schema.graphqls` of the backend. In 
 | `permissions`                                                | `[Permission!]!`   | ADMIN                      |
 | `categories(page: Int, size: Int)`                           | `CategoryPage!`    | Enforced by the backend    |
 | `category(id: ID!)`                                          | `Category`         | Enforced by the backend    |
-| `products(categoryId: ID, page: Int, size: Int)`             | `ProductPage!`     | Enforced by the backend    |
+| `products(categoryId: ID, productName: String, minPrice: Float, maxPrice: Float, page: Int, size: Int)` | `ProductPage!` | Enforced by the backend |
 | `product(id: ID!)`                                           | `Product`          | Enforced by the backend    |
 | `customers(page: Int, size: Int)`                            | `CustomerPage!`    | Enforced by the backend    |
 | `customer(id: ID!)`                                          | `Customer`         | Enforced by the backend    |
@@ -67,9 +67,9 @@ Reproduced from `src/main/resources/graphql/schema.graphqls` of the backend. In 
 
 | Group      | Operations                                                                                                                                                                                                 |
 |------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Auth       | `register(input: RegisterInput!)`, `activateAccount(token: String!)`, `login(input: LoginInput!)`, `logout`, `requestPasswordReset(email: String!)`, `resetPassword(token: String!, newPassword: String!)` |
-| Users      | `createUser(input: CreateUserInput!)`, `updateUser(id: ID!, input: UpdateUserInput!)`, `lockUser(id: ID!)`, `unlockUser(id: ID!)`, `deleteUser(id: ID!)`, `assignRoleToUser(userId: ID!, roleId: ID!)`, `removeRoleFromUser(userId: ID!, roleId: ID!)` |
-| Roles      | `createRole(input: RoleInput!)`, `updateRole(id: ID!, input: RoleInput!)`, `deleteRole(id: ID!)`, `createPermission(input: PermissionInput!)`, `deletePermission(id: ID!)`, `assignPermissionToRole(roleId: ID!, permissionId: ID!)`, `removePermissionFromRole(roleId: ID!, permissionId: ID!)` |
+| Auth       | `register(input: RegisterInput!)`, `activateAccount(token: String!)`, `login(input: LoginInput!)`, `logout`, `refreshToken(token: String!)`, `requestPasswordReset(email: String!)`, `resetPassword(token: String!, newPassword: String!)`, `updateProfile(input: UpdateProfileInput!)` |
+| Users      | `createUser(input: CreateUserInput!)`, `updateUser(id: ID!, input: UpdateUserInput!)`, `lockUser(id: ID!)`, `unlockUser(id: ID!)`, `deleteUser(id: ID!)`, `updateUserRoles(id: ID!, input: UpdateUserRolesInput!)` |
+| Roles      | `createRole(input: RoleInput!)`, `updateRole(id: ID!, input: RoleInput!)`, `deleteRole(id: ID!)`, `createPermission(input: PermissionInput!)`, `deletePermission(id: ID!)`, `updateRolePermissions(roleId: ID!, input: UpdateRolePermissionsInput!)` |
 | Categories | `createCategory(input: CategoryInput!)`, `updateCategory(id: ID!, input: CategoryInput!)`, `deleteCategory(id: ID!)`                                                                                         |
 | Products   | `createProduct(input: ProductInput!)`, `updateProduct(id: ID!, input: ProductInput!)`, `deleteProduct(id: ID!)`                                                                                              |
 | Customers  | `createCustomer(input: CustomerInput!)`, `updateCustomer(id: ID!, input: CustomerInput!)`, `deleteCustomer(id: ID!)`                                                                                         |
@@ -84,7 +84,7 @@ type User         { id: ID!  firstName: String!  lastName: String!  email: Strin
                     enabled: Boolean!  accountLocked: Boolean!  roles: [Role!]! }
 type Role         { id: ID!  roleName: String!  permissions: [Permission!]! }
 type Permission   { id: ID!  resource: String!  action: String! }
-type AuthPayload  { token: String  user: User! }
+type AuthPayload  { accessToken: String!  refreshToken: String!  expiresIn: Int!  user: User! }
 type Category     { id: ID!  categoryName: String! }
 type Product      { id: ID!  productName: String!  unitPrice: Float!  category: Category! }
 type Customer     { id: ID!  firstName: String!  lastName: String!  telephone: String!  email: String!  address: String! }
@@ -93,25 +93,31 @@ type Order        { id: ID!  customer: Customer!  product: Product!  quantity: I
 # Every list result has the same page envelope (UserPage, CategoryPage, ProductPage, CustomerPage, OrderPage)
 type XxxPage      { content: [Xxx!]!  totalElements: Int!  totalPages: Int!  page: Int!  size: Int! }
 
-input RegisterInput    { firstName: String!  lastName: String!  email: String!  password: String! }
-input LoginInput       { email: String!  password: String! }
-input CreateUserInput  { firstName: String!  lastName: String!  email: String!  password: String! }
-input UpdateUserInput  { firstName: String!  lastName: String!  email: String! }
-input RoleInput        { roleName: String! }
-input PermissionInput  { resource: String!  action: String! }
-input CategoryInput    { categoryName: String! }
-input ProductInput     { productName: String!  unitPrice: Float!  categoryId: ID! }
-input CustomerInput    { firstName: String!  lastName: String!  telephone: String!  email: String!  address: String! }
-input OrderInput       { customerId: ID!  productId: ID!  quantity: Int! }
+input RegisterInput             { firstName: String!  lastName: String!  email: String!  password: String!  confirmPassword: String! }
+input LoginInput                { email: String!  password: String! }
+input CreateUserInput           { firstName: String!  lastName: String!  email: String!  password: String! }
+input UpdateUserInput           { firstName: String!  lastName: String!  email: String! }
+input UpdateUserRolesInput      { add: [ID!]  remove: [ID!] }
+input UpdateProfileInput        { firstName: String  lastName: String  email: String }
+input RoleInput                 { roleName: String! }
+input PermissionInput           { resource: String!  action: String! }
+input UpdateRolePermissionsInput { add: [ID!]  remove: [ID!] }
+input CategoryInput             { categoryName: String! }
+input ProductInput              { productName: String!  unitPrice: Float!  categoryId: ID! }
+input CustomerInput             { firstName: String!  lastName: String!  telephone: String!  email: String!  address: String! }
+input OrderInput                { customerId: ID!  productId: ID!  quantity: Int! }
 ```
 
 ### Backend business rules the UI must respect
 
-- `register` creates a **disabled** account; the user cannot log in until `activateAccount` succeeds with the activation token.
-- Deleting a **category that still has products** is rejected with `BAD_REQUEST` (`BusinessRuleException`). The UI must surface the backend message, not a generic one.
-- `createOrder` computes `total = quantity * product.unitPrice` **on the server**. The UI may display a preview but must always display the server's `total` once the order exists.
-- `lockUser` / `unlockUser` toggle `accountLocked`. A locked or disabled user cannot log in.
-- `logout` blacklists the current JWT server-side: the frontend must call it, then discard the token locally.
+- `register` creates a **disabled** account; the user cannot log in until `activateAccount` succeeds with the activation token. `RegisterInput` requires `confirmPassword`; validate client-side that it matches `password` before submitting.
+- Deleting a **category that still has products** is rejected with `BAD_REQUEST`. The UI must surface the backend message verbatim, not a generic one.
+- `createOrder` computes `total = quantity * product.unitPrice` **on the server**. The UI may display a preview labelled as an estimate but must always display the server's `total` once the order exists.
+- `lockUser` / `unlockUser` toggle `accountLocked`. The UI must disable these actions and `deleteUser` for the currently signed-in user's own row.
+- `logout` blacklists the current JWT server-side: the frontend must call the mutation first, then discard the token locally (clear even if the call fails).
+- `updateUserRoles` takes `{ add: [ID!], remove: [ID!] }`: to add one role send `{ add: [roleId] }`, to remove send `{ remove: [roleId] }`. Update the Apollo cache from the returned `User`.
+- `updateRolePermissions` takes `{ add: [ID!], remove: [ID!] }`: same pattern as above. Update the cache from the returned `Role`.
+- IDs are strings (`ID!`); never cast them to numbers.
 
 ## Tech stack
 
@@ -218,10 +224,10 @@ Each `features/<name>/` folder contains: `<name>.routes.ts`, a `data/` folder wi
 
 ### Session
 
-- `login` returns `AuthPayload { token, user }`. Store the token (and nothing sensitive besides it) in `localStorage` under a single key, expose the session through a signal in `AuthService` (`token`, `currentUser`, `isAuthenticated`, `isAdmin`).
-- On application start, if a token exists, call the `me` query to validate it and load the current user with their `roles`. If it fails, clear the session and route to `/login`.
-- The token lasts **1 hour**. There is no refresh-token mutation: when the backend rejects the token, clear the session, keep the target URL, redirect to `/login`, and return to the target URL after a successful login.
-- `logout` calls the `logout` mutation (best effort: clear the local session even if the call fails), clears the Apollo cache (`client.clearStore()`), and navigates to `/login`.
+- `login` returns `AuthPayload { accessToken, refreshToken, expiresIn, user }`. Store `accessToken` (and nothing sensitive besides it) in `localStorage` under a single key, expose the session through a signal in `AuthService` (`currentUser`, `isAuthenticated`, `isAdmin`).
+- On application start, if a token exists, call the `me` query to validate it and load the current user with their `roles`. If it fails, clear the session and route to `/auth/login`.
+- `refreshToken(token: String!)` exchanges a valid refresh token for a new `AuthPayload`. Use it when the access token expires.
+- `logout` calls the `logout` mutation (best effort: clear the local session even if the call fails), clears the Apollo cache (`client.clearStore()`), and navigates to `/auth/login`.
 
 ### Sending the token
 
@@ -291,33 +297,33 @@ Depends on `feature/core-architecture`. Authentication first, then administratio
 
 ### Authentication screens (public routes)
 
-| Route               | Operation(s)                                   | Behavior                                                                                            |
-|---------------------|------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| `/login`            | `login`                                        | Email + password; on success store session, go to the return URL or `/`.                            |
-| `/register`         | `register`                                     | First name, last name, email, password; on success explain that the account must be activated.      |
-| `/activate?token=`  | `activateAccount`                              | Reads the token from the query string, calls the mutation, shows success or the backend error.      |
-| `/forgot-password`  | `requestPasswordReset`                         | Email only. Always show the same neutral confirmation message, whatever the backend answers about the email. |
-| `/reset-password?token=` | `resetPassword`                           | New password + confirmation (client-side match check); token from the query string.                 |
+| Route                        | Operation(s)             | Behavior                                                                                            |
+|------------------------------|--------------------------|-----------------------------------------------------------------------------------------------------|
+| `/auth/login`                | `login`                  | Email + password; on success store session, go to the return URL or `/`.                            |
+| `/auth/register`             | `register`               | First name, last name, email, password, confirm password; validate match client-side; on success explain that the account must be activated. |
+| `/auth/activate-account?token=` | `activateAccount`     | Reads the token from the query string, calls the mutation, shows success or the backend error.      |
+| `/auth/forgot-password`      | `requestPasswordReset`   | Email only. Always show the same neutral confirmation message, whatever the backend answers about the email. |
+| `/auth/reset-password?token=` | `resetPassword`         | New password + confirmation (client-side match check); token from the query string.                 |
 
 ### Administration screens (ADMIN only, behind `authGuard` + `adminGuard`)
 
 | Area        | Operations                                                                                          | Screens                                                                                                                              |
 |-------------|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
 | Users       | `users`, `user`, `createUser`, `updateUser`, `lockUser`, `unlockUser`, `deleteUser`                 | Paginated table (name, email, enabled, locked, roles as chips), create/edit dialog, lock/unlock and delete with confirmation.          |
-| User roles  | `roles`, `assignRoleToUser`, `removeRoleFromUser`                                                   | In a "Manage roles" dialog opened from the user row: assigned roles as removable chips and an "add role" select listing the roles not yet assigned.        |
+| User roles  | `roles`, `updateUserRoles`                                                                          | In a "Manage roles" dialog opened from the user row: assigned roles as removable chips and an "add role" select listing the roles not yet assigned.        |
 | Roles       | `roles`, `role`, `createRole`, `updateRole`, `deleteRole`                                           | Table of roles with their permissions, create/edit dialog, delete with confirmation.                                                   |
-| Role permissions | `permissions`, `assignPermissionToRole`, `removePermissionFromRole`                            | In a "Manage permissions" dialog opened from the role row: assigned permissions as removable chips and an "add permission" select.                                            |
+| Role permissions | `permissions`, `updateRolePermissions`                                                         | In a "Manage permissions" dialog opened from the role row: assigned permissions as removable chips and an "add permission" select.                                            |
 | Permissions | `permissions`, `createPermission`, `deletePermission`                                               | Simple table (`resource`, `action`), create dialog, delete with confirmation.                                                          |
 
 ### Tasks
 
 - [x] `AuthService` (session signal, token storage, `login`, `logout`, session restore with `me`, `isAdmin`), `authGuard`, `adminGuard`, with tests
 - [x] The `authInterceptor` already reads the token for HTTP: make the WebSocket link reconnect on login/logout
-- [x] The five public screens above, with typed reactive forms and field-level validation matching the backend inputs (all fields required; valid email format; sensible password minimum length shown as UX guidance only, since the backend is the authority)
+- [x] The five public screens above, with typed reactive forms and field-level validation matching the backend inputs (all fields required; valid email format; sensible password minimum length shown as UX guidance only, since the backend is the authority; `register` validates that `confirmPassword` equals `password` before submitting)
 - [x] On a `BAD_REQUEST` returned by `register`, `login` or a form mutation, display the backend message
-- [x] Return-URL handling after a forced redirect to `/login`
+- [x] Return-URL handling after a forced redirect to `/auth/login`
 - [x] Admin screens above, using the `UserFields`, `RoleFields` fragments; `User.roles` and `Role.permissions` requested in the list queries (one round trip each)
-- [x] After assignment mutations, update the cache from the returned `User`/`Role` so chips update immediately
+- [x] After `updateUserRoles` / `updateRolePermissions`, update the Apollo cache from the returned `User` / `Role` so chips update immediately
 - [x] A user must not be able to delete or lock **their own** account from the UI (disable those actions on the current user's row)
 - [x] Navigation: show the Administration menu only to admins
 - [x] Tests: error mapping into the login form, session restore, guards, role assignment cache update, a non-admin being redirected from an admin route
@@ -347,7 +353,7 @@ Depends on `feature/categories`.
 
 | Operation                                             | Screen / action                                           |
 |-------------------------------------------------------|-----------------------------------------------------------|
-| `products(categoryId, page, size)`                    | Paginated table with a category filter                    |
+| `products(categoryId, productName, minPrice, maxPrice, page, size)` | Paginated table with category, name and price filters |
 | `product(id)`                                         | Not needed for edit: the dialog is pre-filled from the list row                                         |
 | `createProduct(input)` / `updateProduct(id, input)`   | Create/edit dialog: `productName`, `unitPrice`, `categoryId` (select), ADMIN only |
 | `deleteProduct(id)`                                   | Delete with confirmation, ADMIN only                      |
@@ -356,8 +362,10 @@ Depends on `feature/categories`.
 
 - [x] `ProductFields` fragment including `category { ...CategoryFields }`: the list must be **one** request, never one request per product row
 - [x] Category filter: changing it resets to the first page and re-queries with `categoryId`
+- [x] Name filter (`productName`): free-text search, resets to the first page on change
+- [x] Price range filter (`minPrice`, `maxPrice`): numeric inputs, omitted when empty; `minPrice` must be less than or equal to `maxPrice` (UX validation)
 - [x] `unitPrice` input: numeric, greater than 0 (UX validation), displayed with the currency formatter
-- [x] Tests: filter behavior, one-request list, form validation
+- [x] Tests: filter behavior (category, name, price range), one-request list, form validation
 
 ## feature/customers
 
