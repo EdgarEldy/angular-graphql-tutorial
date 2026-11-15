@@ -26,7 +26,7 @@
             Your account has been created. Please check your email for an activation link
             before signing in.
           </p>
-          <a routerLink="/login" class="btn btn-primary btn-full">Go to login</a>
+          <a routerLink="/auth/login" class="btn btn-primary btn-full">Go to login</a>
         </div>
       } @else {
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -109,6 +109,25 @@
               }
             </div>
 
+            <div class="form-f">
+              <label class="form-lbl" for="reg-confirm-password">Confirm password <span>*</span></label>
+              <div class="form-inp-wrap">
+                <input
+                  id="reg-confirm-password"
+                  class="form-inp"
+                  [class.err]="(confirmPasswordControl.invalid && confirmPasswordControl.touched) || (form.hasError('passwordMismatch') && confirmPasswordControl.touched)"
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="confirmPassword"
+                  autocomplete="new-password"
+                  placeholder="••••••••" />
+              </div>
+              @if (confirmPasswordControl.touched && confirmPasswordControl.hasError('required')) {
+                <span class="form-err">Please confirm your password</span>
+              } @else if (confirmPasswordControl.touched && form.hasError('passwordMismatch')) {
+                <span class="form-err">Passwords do not match</span>
+              }
+            </div>
+
           </div>
 
           <button
@@ -125,7 +144,7 @@
         </form>
 
         <div class="auth-divider">or</div>
-        <p class="auth-link">Already have an account? <a routerLink="/login">Sign in</a></p>
+        <p class="auth-link">Already have an account? <a routerLink="/auth/login">Sign in</a></p>
       }
     </div>
   </div>

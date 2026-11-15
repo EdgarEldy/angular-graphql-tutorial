@@ -56,14 +56,8 @@ mutation DeletePermission($id: ID!) {
   deletePermission(id: $id)
 }
 
-mutation AssignPermissionToRole($roleId: ID!, $permissionId: ID!) {
-  assignPermissionToRole(roleId: $roleId, permissionId: $permissionId) {
-    ...RoleFields
-  }
-}
-
-mutation RemovePermissionFromRole($roleId: ID!, $permissionId: ID!) {
-  removePermissionFromRole(roleId: $roleId, permissionId: $permissionId) {
+mutation UpdateRolePermissions($roleId: ID!, $input: UpdateRolePermissionsInput!) {
+  updateRolePermissions(roleId: $roleId, input: $input) {
     ...RoleFields
   }
 }

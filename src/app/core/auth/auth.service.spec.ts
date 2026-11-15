@@ -84,7 +84,9 @@ describe('AuthService', () => {
       data: {
         login: {
           __typename: 'AuthPayload',
-          token: 'jwt-token',
+          accessToken: 'jwt-token',
+          refreshToken: 'refresh-token',
+          expiresIn: 3600,
           user: mockUser,
         },
       },
@@ -99,7 +101,7 @@ describe('AuthService', () => {
 
   it('login() does not set session when login returns no token', async () => {
     // With errorPolicy:'all', a response without a token still reaches the tap
-    // operator. The guard `if (payload?.token)` prevents the session from being set.
+    // operator. The guard `if (payload?.accessToken)` prevents the session from being set.
     const loginDone = new Promise<void>((resolve) => {
       service.login({ email: 'wrong@example.com', password: 'bad' })
         .subscribe({ next: () => resolve(), error: () => resolve() });
@@ -117,7 +119,7 @@ describe('AuthService', () => {
 
   it('logout() calls clearToken and reconnect regardless of server response', async () => {
     // Pre-populate a token so clearToken has visible effect
-    auth.setToken('existing-token');
+    auth.setTokens('existing-token', null);
 
     const logoutDone = new Promise<void>((resolve) => {
       service.logout().subscribe({ next: () => resolve(), error: () => resolve() });
@@ -147,7 +149,7 @@ describe('AuthService', () => {
 
   it('restoreSession() sets session from me query result', async () => {
     // Place a token in localStorage so Auth.isAuthenticated() returns true
-    auth.setToken('stored-token');
+    auth.setTokens('stored-token', null);
 
     const restoreDone = new Promise<void>((resolve) => {
       service.restoreSession()

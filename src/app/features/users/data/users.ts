@@ -2,9 +2,6 @@
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import {
-  AssignRoleToUserDocument,
-  type AssignRoleToUserMutation,
-  type AssignRoleToUserMutationVariables,
   CreateUserDocument,
   type CreateUserMutation,
   type CreateUserMutationVariables,
@@ -17,15 +14,15 @@ import {
   LockUserDocument,
   type LockUserMutation,
   type LockUserMutationVariables,
-  RemoveRoleFromUserDocument,
-  type RemoveRoleFromUserMutation,
-  type RemoveRoleFromUserMutationVariables,
   UnlockUserDocument,
   type UnlockUserMutation,
   type UnlockUserMutationVariables,
   UpdateUserDocument,
   type UpdateUserMutation,
   type UpdateUserMutationVariables,
+  UpdateUserRolesDocument,
+  type UpdateUserRolesMutation,
+  type UpdateUserRolesMutationVariables,
 } from '../../../core/graphql/generated/graphql';
 import type { QueryRef } from 'apollo-angular';
 
@@ -162,43 +159,24 @@ export class Users {
   }
 
   /**
-   * Calls the `assignRoleToUser` mutation.
+   * Calls the `updateUserRoles` mutation to assign or remove roles in one round-trip.
    *
-   * Returns the updated User (including all roles). Apollo writes this into
-   * the cache, so the user-list chip list and manage-roles dialog both update
-   * without an explicit refetch.
+   * Pass `{ add: [roleId] }` to assign a single role, `{ remove: [roleId] }` to
+   * remove one, or both arrays together to swap roles atomically. Returns the
+   * updated User so Apollo normalises the new roles into the cache and the user-
+   * list chip list and manage-roles dialog both update without a manual refetch.
    *
-   * @param userId - ID of the user.
-   * @param roleId - ID of the role to assign.
+   * @param id - ID of the user whose roles are being changed.
+   * @param input - Object with optional `add` and `remove` arrays of role IDs.
    * @returns Observable of the raw mutation result.
    */
-  assignRoleToUser(
-    userId: AssignRoleToUserMutationVariables['userId'],
-    roleId: AssignRoleToUserMutationVariables['roleId'],
-  ): Observable<Apollo.MutateResult<AssignRoleToUserMutation>> {
-    return this.apollo.mutate<AssignRoleToUserMutation, AssignRoleToUserMutationVariables>({
-      mutation: AssignRoleToUserDocument,
-      variables: { userId, roleId },
-      errorPolicy: 'all',
-    });
-  }
-
-  /**
-   * Calls the `removeRoleFromUser` mutation.
-   *
-   * Returns the updated User so the cache is updated automatically.
-   *
-   * @param userId - ID of the user.
-   * @param roleId - ID of the role to remove.
-   * @returns Observable of the raw mutation result.
-   */
-  removeRoleFromUser(
-    userId: RemoveRoleFromUserMutationVariables['userId'],
-    roleId: RemoveRoleFromUserMutationVariables['roleId'],
-  ): Observable<Apollo.MutateResult<RemoveRoleFromUserMutation>> {
-    return this.apollo.mutate<RemoveRoleFromUserMutation, RemoveRoleFromUserMutationVariables>({
-      mutation: RemoveRoleFromUserDocument,
-      variables: { userId, roleId },
+  updateUserRoles(
+    id: UpdateUserRolesMutationVariables['id'],
+    input: UpdateUserRolesMutationVariables['input'],
+  ): Observable<Apollo.MutateResult<UpdateUserRolesMutation>> {
+    return this.apollo.mutate<UpdateUserRolesMutation, UpdateUserRolesMutationVariables>({
+      mutation: UpdateUserRolesDocument,
+      variables: { id, input },
       errorPolicy: 'all',
     });
   }
