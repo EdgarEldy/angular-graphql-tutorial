@@ -451,26 +451,6 @@
   }
 }
 
-// ── Toolbar profile button ─────────────────────────────────────
-// Avatar-style button showing the user's initials; triggers the profile MatMenu.
-.profile-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--accent);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: opacity 0.15s;
-
-  &:hover {
-    opacity: 0.85;
-  }
-}
-
 .profile-initials {
   font-size: 13px;
   font-weight: 700;
