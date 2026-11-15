@@ -6,10 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../../../core/auth/auth.service';
-import {
-  UpdateProfileDialog,
-  UpdateProfileDialogData,
-} from '../../dialogs/update-profile/update-profile.dialog';
+import { UpdateProfileDialogData } from '../../dialogs/update-profile/update-profile.dialog';
 
 /**
  * Profile page (authenticated route: /profile).
