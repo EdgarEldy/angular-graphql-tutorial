@@ -108,7 +108,7 @@ export const routes: Routes = [
           ),
       },
 
-      // Administration area: /users and /roles require the ADMIN role.
+      // Administration area: /users, /roles and /permissions require the ADMIN role.
       // A pathless parent groups the admin routes without adding a URL segment.
       // adminGuard runs after authGuard so currentUser is already populated.
       {
@@ -128,6 +128,15 @@ export const routes: Routes = [
               import('./features/roles/roles.routes').then(
                 (m) => m.rolesRoutes,
               ),
+          },
+          // /permissions is a dedicated top-level route for the permission list,
+          // mirroring angular-tutorial where each admin resource has its own URL.
+          {
+            path: 'permissions',
+            loadComponent: () =>
+              import(
+                './features/roles/pages/permission-list/permission-list.page'
+              ).then((m) => m.PermissionListPage),
           },
         ],
       },
