@@ -78,6 +78,10 @@ describe('ProfilePagePage', () => {
     );
 
     component.openEditDialog();
+    // dynamic import() returns a native Promise that Zone.js does not patch in Vitest;
+    // a macrotask boundary (setTimeout 0) drains the full microtask queue so the
+    // .then() callback -- which calls dialog.open -- has run before the assertion.
+    await new Promise<void>(resolve => setTimeout(resolve));
     await fixture.whenStable();
 
     expect(dialogMock.open).toHaveBeenCalledWith(
@@ -91,7 +95,12 @@ describe('ProfilePagePage', () => {
     const afterClosedSubject = of(updatedUser);
     dialogMock.open.mockReturnValue({ afterClosed: () => afterClosedSubject });
 
+    // Pre-load the dialog module so the component's dynamic import resolves from cache
+    await import('../../dialogs/update-profile/update-profile.dialog');
+
     component.openEditDialog();
+    // Same macrotask flush as above: drain the import().then() chain before asserting
+    await new Promise<void>(resolve => setTimeout(resolve));
     await fixture.whenStable();
 
     expect(authServiceMock.updateSessionUser).toHaveBeenCalledWith(updatedUser);
