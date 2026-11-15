@@ -168,6 +168,21 @@ export class AuthService {
   }
 
   /**
+   * Replaces the in-memory session user after a profile mutation.
+   *
+   * `updateProfile` returns the updated User from the server. Calling this
+   * method keeps the session signal consistent with what the backend persisted
+   * without a full `me` refetch. The shell toolbar, avatar initials, and any
+   * other computed signal derived from `currentUser` update automatically
+   * because Angular signals propagate synchronously.
+   *
+   * @param user - The updated user object returned by the updateProfile mutation.
+   */
+  updateSessionUser(user: SessionUser): void {
+    this._session.set(user);
+  }
+
+  /**
    * Clears the JWT, session signal, WS client, and Apollo cache.
    *
    * Extracted so both the `logout` tap and the catch handler follow the same
