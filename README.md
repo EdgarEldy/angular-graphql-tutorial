@@ -353,7 +353,7 @@ Depends on `feature/categories`.
 
 | Operation                                             | Screen / action                                           |
 |-------------------------------------------------------|-----------------------------------------------------------|
-| `products(categoryId, page, size)`                    | Paginated table with a category filter                    |
+| `products(categoryId, productName, minPrice, maxPrice, page, size)` | Paginated table with category, name and price filters |
 | `product(id)`                                         | Not needed for edit: the dialog is pre-filled from the list row                                         |
 | `createProduct(input)` / `updateProduct(id, input)`   | Create/edit dialog: `productName`, `unitPrice`, `categoryId` (select), ADMIN only |
 | `deleteProduct(id)`                                   | Delete with confirmation, ADMIN only                      |
@@ -362,8 +362,10 @@ Depends on `feature/categories`.
 
 - [x] `ProductFields` fragment including `category { ...CategoryFields }`: the list must be **one** request, never one request per product row
 - [x] Category filter: changing it resets to the first page and re-queries with `categoryId`
+- [x] Name filter (`productName`): free-text search, resets to the first page on change
+- [x] Price range filter (`minPrice`, `maxPrice`): numeric inputs, omitted when empty; `minPrice` must be less than or equal to `maxPrice` (UX validation)
 - [x] `unitPrice` input: numeric, greater than 0 (UX validation), displayed with the currency formatter
-- [x] Tests: filter behavior, one-request list, form validation
+- [x] Tests: filter behavior (category, name, price range), one-request list, form validation
 
 ## feature/customers
 
