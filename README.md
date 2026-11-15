@@ -56,7 +56,7 @@ Reproduced from `src/main/resources/graphql/schema.graphqls` of the backend. In 
 | `permissions`                                                | `[Permission!]!`   | ADMIN                      |
 | `categories(page: Int, size: Int)`                           | `CategoryPage!`    | Enforced by the backend    |
 | `category(id: ID!)`                                          | `Category`         | Enforced by the backend    |
-| `products(categoryId: ID, page: Int, size: Int)`             | `ProductPage!`     | Enforced by the backend    |
+| `products(categoryId: ID, productName: String, minPrice: Float, maxPrice: Float, page: Int, size: Int)` | `ProductPage!` | Enforced by the backend |
 | `product(id: ID!)`                                           | `Product`          | Enforced by the backend    |
 | `customers(page: Int, size: Int)`                            | `CustomerPage!`    | Enforced by the backend    |
 | `customer(id: ID!)`                                          | `Customer`         | Enforced by the backend    |
@@ -67,9 +67,9 @@ Reproduced from `src/main/resources/graphql/schema.graphqls` of the backend. In 
 
 | Group      | Operations                                                                                                                                                                                                 |
 |------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Auth       | `register(input: RegisterInput!)`, `activateAccount(token: String!)`, `login(input: LoginInput!)`, `logout`, `requestPasswordReset(email: String!)`, `resetPassword(token: String!, newPassword: String!)` |
-| Users      | `createUser(input: CreateUserInput!)`, `updateUser(id: ID!, input: UpdateUserInput!)`, `lockUser(id: ID!)`, `unlockUser(id: ID!)`, `deleteUser(id: ID!)`, `assignRoleToUser(userId: ID!, roleId: ID!)`, `removeRoleFromUser(userId: ID!, roleId: ID!)` |
-| Roles      | `createRole(input: RoleInput!)`, `updateRole(id: ID!, input: RoleInput!)`, `deleteRole(id: ID!)`, `createPermission(input: PermissionInput!)`, `deletePermission(id: ID!)`, `assignPermissionToRole(roleId: ID!, permissionId: ID!)`, `removePermissionFromRole(roleId: ID!, permissionId: ID!)` |
+| Auth       | `register(input: RegisterInput!)`, `activateAccount(token: String!)`, `login(input: LoginInput!)`, `logout`, `refreshToken(token: String!)`, `requestPasswordReset(email: String!)`, `resetPassword(token: String!, newPassword: String!)`, `updateProfile(input: UpdateProfileInput!)` |
+| Users      | `createUser(input: CreateUserInput!)`, `updateUser(id: ID!, input: UpdateUserInput!)`, `lockUser(id: ID!)`, `unlockUser(id: ID!)`, `deleteUser(id: ID!)`, `updateUserRoles(id: ID!, input: UpdateUserRolesInput!)` |
+| Roles      | `createRole(input: RoleInput!)`, `updateRole(id: ID!, input: RoleInput!)`, `deleteRole(id: ID!)`, `createPermission(input: PermissionInput!)`, `deletePermission(id: ID!)`, `updateRolePermissions(roleId: ID!, input: UpdateRolePermissionsInput!)` |
 | Categories | `createCategory(input: CategoryInput!)`, `updateCategory(id: ID!, input: CategoryInput!)`, `deleteCategory(id: ID!)`                                                                                         |
 | Products   | `createProduct(input: ProductInput!)`, `updateProduct(id: ID!, input: ProductInput!)`, `deleteProduct(id: ID!)`                                                                                              |
 | Customers  | `createCustomer(input: CustomerInput!)`, `updateCustomer(id: ID!, input: CustomerInput!)`, `deleteCustomer(id: ID!)`                                                                                         |
@@ -84,7 +84,7 @@ type User         { id: ID!  firstName: String!  lastName: String!  email: Strin
                     enabled: Boolean!  accountLocked: Boolean!  roles: [Role!]! }
 type Role         { id: ID!  roleName: String!  permissions: [Permission!]! }
 type Permission   { id: ID!  resource: String!  action: String! }
-type AuthPayload  { token: String  user: User! }
+type AuthPayload  { accessToken: String!  refreshToken: String!  expiresIn: Int!  user: User! }
 type Category     { id: ID!  categoryName: String! }
 type Product      { id: ID!  productName: String!  unitPrice: Float!  category: Category! }
 type Customer     { id: ID!  firstName: String!  lastName: String!  telephone: String!  email: String!  address: String! }
@@ -93,25 +93,31 @@ type Order        { id: ID!  customer: Customer!  product: Product!  quantity: I
 # Every list result has the same page envelope (UserPage, CategoryPage, ProductPage, CustomerPage, OrderPage)
 type XxxPage      { content: [Xxx!]!  totalElements: Int!  totalPages: Int!  page: Int!  size: Int! }
 
-input RegisterInput    { firstName: String!  lastName: String!  email: String!  password: String! }
-input LoginInput       { email: String!  password: String! }
-input CreateUserInput  { firstName: String!  lastName: String!  email: String!  password: String! }
-input UpdateUserInput  { firstName: String!  lastName: String!  email: String! }
-input RoleInput        { roleName: String! }
-input PermissionInput  { resource: String!  action: String! }
-input CategoryInput    { categoryName: String! }
-input ProductInput     { productName: String!  unitPrice: Float!  categoryId: ID! }
-input CustomerInput    { firstName: String!  lastName: String!  telephone: String!  email: String!  address: String! }
-input OrderInput       { customerId: ID!  productId: ID!  quantity: Int! }
+input RegisterInput             { firstName: String!  lastName: String!  email: String!  password: String!  confirmPassword: String! }
+input LoginInput                { email: String!  password: String! }
+input CreateUserInput           { firstName: String!  lastName: String!  email: String!  password: String! }
+input UpdateUserInput           { firstName: String!  lastName: String!  email: String! }
+input UpdateUserRolesInput      { add: [ID!]  remove: [ID!] }
+input UpdateProfileInput        { firstName: String  lastName: String  email: String }
+input RoleInput                 { roleName: String! }
+input PermissionInput           { resource: String!  action: String! }
+input UpdateRolePermissionsInput { add: [ID!]  remove: [ID!] }
+input CategoryInput             { categoryName: String! }
+input ProductInput              { productName: String!  unitPrice: Float!  categoryId: ID! }
+input CustomerInput             { firstName: String!  lastName: String!  telephone: String!  email: String!  address: String! }
+input OrderInput                { customerId: ID!  productId: ID!  quantity: Int! }
 ```
 
 ### Backend business rules the UI must respect
 
-- `register` creates a **disabled** account; the user cannot log in until `activateAccount` succeeds with the activation token.
-- Deleting a **category that still has products** is rejected with `BAD_REQUEST` (`BusinessRuleException`). The UI must surface the backend message, not a generic one.
-- `createOrder` computes `total = quantity * product.unitPrice` **on the server**. The UI may display a preview but must always display the server's `total` once the order exists.
-- `lockUser` / `unlockUser` toggle `accountLocked`. A locked or disabled user cannot log in.
-- `logout` blacklists the current JWT server-side: the frontend must call it, then discard the token locally.
+- `register` creates a **disabled** account; the user cannot log in until `activateAccount` succeeds with the activation token. `RegisterInput` requires `confirmPassword`; validate client-side that it matches `password` before submitting.
+- Deleting a **category that still has products** is rejected with `BAD_REQUEST`. The UI must surface the backend message verbatim, not a generic one.
+- `createOrder` computes `total = quantity * product.unitPrice` **on the server**. The UI may display a preview labelled as an estimate but must always display the server's `total` once the order exists.
+- `lockUser` / `unlockUser` toggle `accountLocked`. The UI must disable these actions and `deleteUser` for the currently signed-in user's own row.
+- `logout` blacklists the current JWT server-side: the frontend must call the mutation first, then discard the token locally (clear even if the call fails).
+- `updateUserRoles` takes `{ add: [ID!], remove: [ID!] }`: to add one role send `{ add: [roleId] }`, to remove send `{ remove: [roleId] }`. Update the Apollo cache from the returned `User`.
+- `updateRolePermissions` takes `{ add: [ID!], remove: [ID!] }`: same pattern as above. Update the cache from the returned `Role`.
+- IDs are strings (`ID!`); never cast them to numbers.
 
 ## Tech stack
 
@@ -218,10 +224,10 @@ Each `features/<name>/` folder contains: `<name>.routes.ts`, a `data/` folder wi
 
 ### Session
 
-- `login` returns `AuthPayload { token, user }`. Store the token (and nothing sensitive besides it) in `localStorage` under a single key, expose the session through a signal in `AuthService` (`token`, `currentUser`, `isAuthenticated`, `isAdmin`).
-- On application start, if a token exists, call the `me` query to validate it and load the current user with their `roles`. If it fails, clear the session and route to `/login`.
-- The token lasts **1 hour**. There is no refresh-token mutation: when the backend rejects the token, clear the session, keep the target URL, redirect to `/login`, and return to the target URL after a successful login.
-- `logout` calls the `logout` mutation (best effort: clear the local session even if the call fails), clears the Apollo cache (`client.clearStore()`), and navigates to `/login`.
+- `login` returns `AuthPayload { accessToken, refreshToken, expiresIn, user }`. Store `accessToken` (and nothing sensitive besides it) in `localStorage` under a single key, expose the session through a signal in `AuthService` (`currentUser`, `isAuthenticated`, `isAdmin`).
+- On application start, if a token exists, call the `me` query to validate it and load the current user with their `roles`. If it fails, clear the session and route to `/auth/login`.
+- `refreshToken(token: String!)` exchanges a valid refresh token for a new `AuthPayload`. Use it when the access token expires.
+- `logout` calls the `logout` mutation (best effort: clear the local session even if the call fails), clears the Apollo cache (`client.clearStore()`), and navigates to `/auth/login`.
 
 ### Sending the token
 
