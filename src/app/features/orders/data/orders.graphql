@@ -1,0 +1,66 @@
+# OrderFields includes nested customer and product (with category) so the list
+# screen is served by a single request -- no N+1 round-trips per row.
+fragment OrderFields on Order {
+  id
+  quantity
+  total
+  customer {
+    ...CustomerFields
+  }
+  product {
+    ...ProductFields
+  }
+}
+
+# Paginated order list; customerId is optional -- null means "all orders".
+query GetOrders($customerId: ID, $page: Int, $size: Int) {
+  orders(customerId: $customerId, page: $page, size: $size) {
+    content {
+      ...OrderFields
+    }
+    totalElements
+    totalPages
+    page
+    size
+  }
+}
+
+# Single order detail -- used by the order detail page (/orders/:id).
+query GetOrder($id: ID!) {
+  order(id: $id) {
+    ...OrderFields
+  }
+}
+
+# Used for the customer filter dropdown on the list page and the customer
+# select in the create order form dialog.
+query GetCustomerOptions {
+  customers(page: 0, size: 1000) {
+    content {
+      ...CustomerFields
+    }
+  }
+}
+
+# Used for the product select in the create order dialog.
+query GetProductOptions {
+  products(page: 0, size: 1000) {
+    content {
+      ...ProductFields
+    }
+  }
+}
+
+mutation CreateOrder($input: OrderInput!) {
+  createOrder(input: $input) {
+    ...OrderFields
+  }
+}
+
+# Real-time stream of newly created orders; backend pushes an Order via
+# graphql-ws whenever any user creates one.
+subscription OrderCreated {
+  orderCreated {
+    ...OrderFields
+  }
+}

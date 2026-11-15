@@ -1,0 +1,36 @@
+fragment CustomerFields on Customer {
+  id
+  firstName
+  lastName
+  telephone
+  email
+  address
+}
+
+query GetCustomers($page: Int, $size: Int) {
+  customers(page: $page, size: $size) {
+    content {
+      ...CustomerFields
+    }
+    totalElements
+    totalPages
+    page
+    size
+  }
+}
+
+mutation CreateCustomer($input: CustomerInput!) {
+  createCustomer(input: $input) {
+    ...CustomerFields
+  }
+}
+
+mutation UpdateCustomer($id: ID!, $input: CustomerInput!) {
+  updateCustomer(id: $id, input: $input) {
+    ...CustomerFields
+  }
+}
+
+mutation DeleteCustomer($id: ID!) {
+  deleteCustomer(id: $id)
+}

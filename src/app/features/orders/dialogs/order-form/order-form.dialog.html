@@ -1,0 +1,72 @@
+<h2 mat-dialog-title>Create order</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" novalidate>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Customer</mat-label>
+      <mat-select formControlName="customerId">
+        @for (customer of customerOptions(); track customer.id) {
+          <mat-option [value]="customer.id">
+            {{ customer.firstName }} {{ customer.lastName }}
+          </mat-option>
+        }
+      </mat-select>
+      @if (customerIdControl.hasError('required')) {
+        <mat-error>Customer is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Product</mat-label>
+      <mat-select formControlName="productId">
+        @for (product of productOptions(); track product.id) {
+          <mat-option [value]="product.id">
+            {{ product.productName }} ({{ product.unitPrice | currency }})
+          </mat-option>
+        }
+      </mat-select>
+      @if (productIdControl.hasError('required')) {
+        <mat-error>Product is required</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Quantity</mat-label>
+      <!-- type="number" with step="1" restricts input to integers on most browsers -->
+      <input matInput type="number" step="1" min="1" formControlName="quantity" />
+      @if (quantityControl.hasError('required')) {
+        <mat-error>Quantity is required</mat-error>
+      } @else if (quantityControl.hasError('min')) {
+        <mat-error>Quantity must be at least 1</mat-error>
+      }
+    </mat-form-field>
+
+    <!-- Client-side estimate preview.
+         Labelled clearly as an estimate because the server computes the
+         authoritative total (total = quantity * product.unitPrice) and may
+         apply discounts or rounding that differ from this simple calculation. -->
+    @if (estimatedTotal() > 0) {
+      <div class="estimated-total">
+        <span class="estimated-label">Estimated total:</span>
+        <span class="estimated-value">{{ estimatedTotal() | currency }}</span>
+        <span class="estimated-note">(estimate only -- server total may differ)</span>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <p class="form-error" role="alert">{{ errorMessage() }}</p>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.invalid || loading()">
+    @if (loading()) {
+      <mat-spinner diameter="20" />
+    } @else {
+      Create
+    }
+  </button>
+</mat-dialog-actions>
