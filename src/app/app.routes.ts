@@ -81,6 +81,15 @@ export const routes: Routes = [
           ),
       },
 
+      // Profile -- authenticated user edits their own account
+      {
+        path: 'profile',
+        loadComponent: () =>
+          import('./features/auth/pages/profile-page/profile-page.page').then(
+            (m) => m.ProfilePagePage,
+          ),
+      },
+
       // Customers -- behind authGuard
       {
         path: 'customers',
