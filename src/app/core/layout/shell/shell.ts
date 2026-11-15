@@ -208,7 +208,7 @@ export class Shell {
   protected readonly adminItems: NavItem[] = [
     { label: 'Users',       icon: 'manage_accounts', route: '/users' },
     { label: 'Roles',       icon: 'shield',          route: '/roles' },
-    { label: 'Permissions', icon: 'lock_open',        route: '/roles/permissions' },
+    { label: 'Permissions', icon: 'lock_open',       route: '/permissions' },
   ];
 
   // ── Page title ─────────────────────────────────────────────────────────────
