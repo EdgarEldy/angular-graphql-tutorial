@@ -1,0 +1,84 @@
+// .page-container padding comes from the global utility class in styles.scss
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--txt-1);
+  letter-spacing: -0.01em;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.detail-card {
+  height: fit-content;
+}
+
+// Restyle mat-card to match the design token card system.
+::ng-deep .detail-card {
+  &.mat-mdc-card {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--sh-card) !important;
+    border-radius: var(--r-lg) !important;
+  }
+
+  .mat-mdc-card-title {
+    color: var(--txt-1) !important;
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+  }
+}
+
+.detail-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  padding: 0;
+
+  dt {
+    font-weight: 500;
+    color: var(--txt-2);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--txt-1);
+  }
+}
+
+.total-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 0;
+  text-align: center;
+  color: var(--txt-2);
+}
+
+.not-found-icon {
+  font-size: 56px;
+  width: 56px;
+  height: 56px;
+  color: var(--txt-3);
+  opacity: 0.6;
+}

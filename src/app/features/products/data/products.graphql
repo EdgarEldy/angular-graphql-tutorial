@@ -1,0 +1,36 @@
+fragment ProductFields on Product {
+  id
+  productName
+  unitPrice
+  category {
+    ...CategoryFields
+  }
+}
+
+query GetProducts($categoryId: ID, $page: Int, $size: Int) {
+  products(categoryId: $categoryId, page: $page, size: $size) {
+    content {
+      ...ProductFields
+    }
+    totalElements
+    totalPages
+    page
+    size
+  }
+}
+
+mutation CreateProduct($input: ProductInput!) {
+  createProduct(input: $input) {
+    ...ProductFields
+  }
+}
+
+mutation UpdateProduct($id: ID!, $input: ProductInput!) {
+  updateProduct(id: $id, input: $input) {
+    ...ProductFields
+  }
+}
+
+mutation DeleteProduct($id: ID!) {
+  deleteProduct(id: $id)
+}
