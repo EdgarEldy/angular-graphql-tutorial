@@ -44,28 +44,34 @@ export class Products {
    * Creates a watchQuery for the paginated product list.
    *
    * Returns a QueryRef rather than an Observable so the caller can call
-   * .refetch() after delete operations, after dialog closes, and when the
-   * category filter changes. watchQuery keeps the subscription alive and
-   * reacts to InMemoryCache updates triggered by create/update mutations
-   * (which return the Product entity with its nested Category).
+   * .refetch() after delete operations, after dialog closes, and when any
+   * filter changes. watchQuery keeps the subscription alive and reacts to
+   * InMemoryCache updates triggered by create/update mutations (which return
+   * the Product entity with its nested Category).
    *
-   * The categoryId parameter is optional: null means "all products", a string
-   * ID scopes the result to that category. The backend accepts null/undefined
-   * as "no filter".
+   * All filter parameters are optional. null/undefined tells the backend to
+   * skip that filter entirely. minPrice and maxPrice are passed as numbers
+   * when set, or null to remove the constraint.
    *
-   * @param categoryId - Category ID to filter by, or null for all products.
+   * @param categoryId - Category ID to filter by, or null for all categories.
+   * @param productName - Partial name filter (backend applies LIKE search), or null.
+   * @param minPrice - Minimum unit price inclusive, or null.
+   * @param maxPrice - Maximum unit price inclusive, or null.
    * @param page - 0-based page index.
    * @param size - Number of products per page.
    * @returns Apollo QueryRef for the paginated product list.
    */
   watchProducts(
     categoryId: string | null,
+    productName: string | null,
+    minPrice: number | null,
+    maxPrice: number | null,
     page: number,
     size: number,
   ): QueryRef<GetProductsQuery, GetProductsQueryVariables> {
     return this.apollo.watchQuery<GetProductsQuery, GetProductsQueryVariables>({
       query: GetProductsDocument,
-      variables: { categoryId, page, size },
+      variables: { categoryId, productName, minPrice, maxPrice, page, size },
       errorPolicy: 'all',
     });
   }

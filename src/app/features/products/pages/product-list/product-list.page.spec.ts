@@ -169,8 +169,12 @@ describe('ProductListPage', () => {
     // pageIndex must be reset so the user sees the first page of the filtered results
     expect(component.pageIndex()).toBe(0);
     expect(component.selectedCategoryId()).toBe('10');
+    // refetch is called with all six variables; the other three filters are null by default
     expect(productsRefetchMock).toHaveBeenCalledWith({
       categoryId: '10',
+      productName: null,
+      minPrice: null,
+      maxPrice: null,
       page: 0,
       size: 10,
     });
@@ -183,8 +187,12 @@ describe('ProductListPage', () => {
 
     component.onPageChange({ pageIndex: 2, pageSize: 10, length: 30 });
 
+    // refetch is called with all six variables; inactive filters are null
     expect(productsRefetchMock).toHaveBeenCalledWith({
       categoryId: '10',
+      productName: null,
+      minPrice: null,
+      maxPrice: null,
       page: 2,
       size: 10,
     });

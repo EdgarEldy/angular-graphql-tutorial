@@ -7,8 +7,8 @@ fragment ProductFields on Product {
   }
 }
 
-query GetProducts($categoryId: ID, $page: Int, $size: Int) {
-  products(categoryId: $categoryId, page: $page, size: $size) {
+query GetProducts($categoryId: ID, $productName: String, $minPrice: Float, $maxPrice: Float, $page: Int, $size: Int) {
+  products(categoryId: $categoryId, productName: $productName, minPrice: $minPrice, maxPrice: $maxPrice, page: $page, size: $size) {
     content {
       ...ProductFields
     }
