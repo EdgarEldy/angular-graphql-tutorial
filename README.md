@@ -297,33 +297,33 @@ Depends on `feature/core-architecture`. Authentication first, then administratio
 
 ### Authentication screens (public routes)
 
-| Route               | Operation(s)                                   | Behavior                                                                                            |
-|---------------------|------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| `/login`            | `login`                                        | Email + password; on success store session, go to the return URL or `/`.                            |
-| `/register`         | `register`                                     | First name, last name, email, password; on success explain that the account must be activated.      |
-| `/activate?token=`  | `activateAccount`                              | Reads the token from the query string, calls the mutation, shows success or the backend error.      |
-| `/forgot-password`  | `requestPasswordReset`                         | Email only. Always show the same neutral confirmation message, whatever the backend answers about the email. |
-| `/reset-password?token=` | `resetPassword`                           | New password + confirmation (client-side match check); token from the query string.                 |
+| Route                        | Operation(s)             | Behavior                                                                                            |
+|------------------------------|--------------------------|-----------------------------------------------------------------------------------------------------|
+| `/auth/login`                | `login`                  | Email + password; on success store session, go to the return URL or `/`.                            |
+| `/auth/register`             | `register`               | First name, last name, email, password, confirm password; validate match client-side; on success explain that the account must be activated. |
+| `/auth/activate-account?token=` | `activateAccount`     | Reads the token from the query string, calls the mutation, shows success or the backend error.      |
+| `/auth/forgot-password`      | `requestPasswordReset`   | Email only. Always show the same neutral confirmation message, whatever the backend answers about the email. |
+| `/auth/reset-password?token=` | `resetPassword`         | New password + confirmation (client-side match check); token from the query string.                 |
 
 ### Administration screens (ADMIN only, behind `authGuard` + `adminGuard`)
 
 | Area        | Operations                                                                                          | Screens                                                                                                                              |
 |-------------|-----------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------|
 | Users       | `users`, `user`, `createUser`, `updateUser`, `lockUser`, `unlockUser`, `deleteUser`                 | Paginated table (name, email, enabled, locked, roles as chips), create/edit dialog, lock/unlock and delete with confirmation.          |
-| User roles  | `roles`, `assignRoleToUser`, `removeRoleFromUser`                                                   | In a "Manage roles" dialog opened from the user row: assigned roles as removable chips and an "add role" select listing the roles not yet assigned.        |
+| User roles  | `roles`, `updateUserRoles`                                                                          | In a "Manage roles" dialog opened from the user row: assigned roles as removable chips and an "add role" select listing the roles not yet assigned.        |
 | Roles       | `roles`, `role`, `createRole`, `updateRole`, `deleteRole`                                           | Table of roles with their permissions, create/edit dialog, delete with confirmation.                                                   |
-| Role permissions | `permissions`, `assignPermissionToRole`, `removePermissionFromRole`                            | In a "Manage permissions" dialog opened from the role row: assigned permissions as removable chips and an "add permission" select.                                            |
+| Role permissions | `permissions`, `updateRolePermissions`                                                         | In a "Manage permissions" dialog opened from the role row: assigned permissions as removable chips and an "add permission" select.                                            |
 | Permissions | `permissions`, `createPermission`, `deletePermission`                                               | Simple table (`resource`, `action`), create dialog, delete with confirmation.                                                          |
 
 ### Tasks
 
 - [x] `AuthService` (session signal, token storage, `login`, `logout`, session restore with `me`, `isAdmin`), `authGuard`, `adminGuard`, with tests
 - [x] The `authInterceptor` already reads the token for HTTP: make the WebSocket link reconnect on login/logout
-- [x] The five public screens above, with typed reactive forms and field-level validation matching the backend inputs (all fields required; valid email format; sensible password minimum length shown as UX guidance only, since the backend is the authority)
+- [x] The five public screens above, with typed reactive forms and field-level validation matching the backend inputs (all fields required; valid email format; sensible password minimum length shown as UX guidance only, since the backend is the authority; `register` validates that `confirmPassword` equals `password` before submitting)
 - [x] On a `BAD_REQUEST` returned by `register`, `login` or a form mutation, display the backend message
-- [x] Return-URL handling after a forced redirect to `/login`
+- [x] Return-URL handling after a forced redirect to `/auth/login`
 - [x] Admin screens above, using the `UserFields`, `RoleFields` fragments; `User.roles` and `Role.permissions` requested in the list queries (one round trip each)
-- [x] After assignment mutations, update the cache from the returned `User`/`Role` so chips update immediately
+- [x] After `updateUserRoles` / `updateRolePermissions`, update the Apollo cache from the returned `User` / `Role` so chips update immediately
 - [x] A user must not be able to delete or lock **their own** account from the UI (disable those actions on the current user's row)
 - [x] Navigation: show the Administration menu only to admins
 - [x] Tests: error mapping into the login form, session restore, guards, role assignment cache update, a non-admin being redirected from an admin route
